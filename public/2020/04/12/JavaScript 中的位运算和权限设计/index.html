@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/blog/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/blog/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="-算法," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="1. 内容概要本文主要讨论以下两个问题：  JavaScript 的位运算：先简单回顾下位运算，平时用的少，相信不少人和我一样忘的差不多了 权限设计：根据位运算的特点，设计一个权限系统（添加、删除、判断等）">
+<meta name="keywords" content="-算法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JavaScript 中的位运算和权限设计">
+<meta property="og:url" content="http://www.leqikeji.com/blog/2020/04/12/JavaScript 中的位运算和权限设计/index.html">
+<meta property="og:site_name" content="Experor、宇的个人博客">
+<meta property="og:description" content="1. 内容概要本文主要讨论以下两个问题：  JavaScript 的位运算：先简单回顾下位运算，平时用的少，相信不少人和我一样忘的差不多了 权限设计：根据位运算的特点，设计一个权限系统（添加、删除、判断等）">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://wos2.58cdn.com.cn/iJkFeDcBiJiJ/rocket/7a04aac6-45b1-43a6-b20c-cd7ff147b060.jpeg">
+<meta property="og:updated_time" content="2020-05-15T06:28:04.632Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JavaScript 中的位运算和权限设计">
+<meta name="twitter:description" content="1. 内容概要本文主要讨论以下两个问题：  JavaScript 的位运算：先简单回顾下位运算，平时用的少，相信不少人和我一样忘的差不多了 权限设计：根据位运算的特点，设计一个权限系统（添加、删除、判断等）">
+<meta name="twitter:image" content="https://wos2.58cdn.com.cn/iJkFeDcBiJiJ/rocket/7a04aac6-45b1-43a6-b20c-cd7ff147b060.jpeg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.leqikeji.com/blog/2020/04/12/JavaScript 中的位运算和权限设计/"/>
+
+
+
+
+
+  <title>JavaScript 中的位运算和权限设计 | Experor、宇的个人博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Experor、宇的个人博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">没有比脚更长的路，走过去，前面是个天！</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/blog/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/blog/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/blog/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/blog/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/blog/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.leqikeji.com/blog/blog/2020/04/12/JavaScript 中的位运算和权限设计/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Experor、宇">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="http://leqikeji.cn/myImgs/title.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Experor、宇的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">JavaScript 中的位运算和权限设计</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-12T15:56:40+08:00">
+                2020-04-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/技术分享/" itemprop="url" rel="index">
+                    <span itemprop="name">技术分享</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-comment-o"></i>
+              </span>
+              
+                <a href="/blog/2020/04/12/JavaScript 中的位运算和权限设计/#SOHUCS" itemprop="discussionUrl">
+                  <span id="changyan_count_unit" class="post-comments-count hc-comment-count" data-xid="2020/04/12/JavaScript 中的位运算和权限设计/" itemprop="commentsCount"></span>
+                </a>
+              
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="1-内容概要"><a href="#1-内容概要" class="headerlink" title="1. 内容概要"></a>1. 内容概要</h2><p>本文主要讨论以下两个问题：</p>
+<ul>
+<li>JavaScript 的位运算：先简单回顾下位运算，平时用的少，相信不少人和我一样忘的差不多了</li>
+<li>权限设计：根据位运算的特点，设计一个权限系统（添加、删除、判断等）<a id="more"></a>
+<h2 id="2-JavaScript-位运算"><a href="#2-JavaScript-位运算" class="headerlink" title="2. JavaScript 位运算"></a>2. JavaScript 位运算</h2></li>
+</ul>
+<h3 id="2-1-Number"><a href="#2-1-Number" class="headerlink" title="2.1. Number"></a>2.1. Number</h3><p>在讲位运算之前，首先简单看下 JavaScript 中的 Number，下文需要用到。</p>
+<p>在 JavaScript 里，数字均为<a href="https://zh.wikipedia.org/wiki/雙精度浮點數" target="_blank" rel="noopener">基于 IEEE 754 标准的双精度 64 位的浮点数</a>，引用维基百科的图片，它的结构长这样：</p>
+<p><img src="https://wos2.58cdn.com.cn/iJkFeDcBiJiJ/rocket/7a04aac6-45b1-43a6-b20c-cd7ff147b060.jpeg" alt="img"></p>
+<ul>
+<li>sign bit（符号）: 用来表示正负号</li>
+<li>exponent（指数）: 用来表示次方数</li>
+<li>mantissa（尾数）: 用来表示精确度</li>
+</ul>
+<p>也就是说一个数字的范围只能在 -(2^53 -1) 至 2^53 -1 之间。</p>
+<blockquote>
+<p>既然讲到这里，就多说一句：0.1 + 0.2 算不准的原因也在于此。浮点数用二进制表达时是无穷的，且最多 53 位，必须截断，进而产生误差。最简单的解决办法就是放大一定倍数变成整数，计算完成后再缩小。不过更稳妥的办法是使用下文将会提到的 <a href="https://mathjs.org/docs/datatypes/bignumbers.html#roundoff-errors" target="_blank" rel="noopener">math.js</a> 等工具库。</p>
+</blockquote>
+<p>此外还有四种数字进制：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 十进制</span></span><br><span class="line"><span class="number">123456789</span></span><br><span class="line"><span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 二进制：前缀 0b，0B</span></span><br><span class="line"><span class="number">0b10000000000000000000000000000000</span> <span class="comment">// 2147483648</span></span><br><span class="line"><span class="number">0b01111111100000000000000000000000</span> <span class="comment">// 2139095040</span></span><br><span class="line"><span class="number">0B00000000011111111111111111111111</span> <span class="comment">// 8388607</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 八进制：前缀 0o，0O（以前支持前缀 0）</span></span><br><span class="line"><span class="number">0o755</span> <span class="comment">// 493</span></span><br><span class="line"><span class="number">0o644</span> <span class="comment">// 420</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 十六进制：前缀 0x，0X</span></span><br><span class="line"><span class="number">0xFFFFFFFFFFFFFFFFF</span> <span class="comment">// 295147905179352830000</span></span><br><span class="line"><span class="number">0x123456789ABCDEF</span>   <span class="comment">// 81985529216486900</span></span><br><span class="line"><span class="number">0XA</span>                 <span class="comment">// 10</span></span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p>好了，Number 就说这么多，接下来看 JavaScript 中的位运算。</p>
+<h3 id="2-2-位运算"><a href="#2-2-位运算" class="headerlink" title="2.2. 位运算"></a>2.2. 位运算</h3><p>按位操作符将其操作数当作 32 位的比特序列（由 0 和 1 组成）操作，返回值依然是标准的 JavaScript 数值。JavaScript 中的按位操作符有：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">运算符</th>
+<th style="text-align:left">用法</th>
+<th style="text-align:left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">按位与（AND）</td>
+<td style="text-align:left"><code>a &amp; b</code></td>
+<td style="text-align:left">对于每一个比特位，只有两个操作数相应的比特位都是 1 时，结果才为 1，否则为 0。</td>
+</tr>
+<tr>
+<td style="text-align:left">按位或（OR）</td>
+<td style="text-align:left"><code>a ｜ b</code></td>
+<td style="text-align:left">对于每一个比特位，当两个操作数相应的比特位至少有一个 1 时，结果为 1，否则为 0。</td>
+</tr>
+<tr>
+<td style="text-align:left">按位异或（XOR）</td>
+<td style="text-align:left"><code>a ^ b</code></td>
+<td style="text-align:left">对于每一个比特位，当两个操作数相应的比特位有且只有一个 1 时，结果为 1，否则为 0。</td>
+</tr>
+<tr>
+<td style="text-align:left">按位非（NOT）</td>
+<td style="text-align:left"><code>~a</code></td>
+<td style="text-align:left">反转操作数的比特位，即 0 变成 1，1 变成 0。</td>
+</tr>
+<tr>
+<td style="text-align:left">左移（Left shift）</td>
+<td style="text-align:left"><code>a &lt;&lt; b</code></td>
+<td style="text-align:left">将 a 的二进制形式向左移 b (&lt; 32) 比特位，右边用 0 填充。</td>
+</tr>
+<tr>
+<td style="text-align:left">有符号右移</td>
+<td style="text-align:left"><code>a &gt;&gt; b</code></td>
+<td style="text-align:left">将 a 的二进制表示向右移 b (&lt; 32) 位，丢弃被移出的位。</td>
+</tr>
+<tr>
+<td style="text-align:left">无符号右移</td>
+<td style="text-align:left"><code>a &gt;&gt;&gt; b</code></td>
+<td style="text-align:left">将 a 的二进制表示向右移 b (&lt; 32) 位，丢弃被移出的位，并使用 0 在左侧填充。</td>
+</tr>
+</tbody>
+</table>
+<p>下面举几个例子，主要看下 <code>AND</code> 和 <code>OR</code>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"># 例子1</span><br><span class="line">    A = <span class="number">10001001</span></span><br><span class="line">    B = <span class="number">10010000</span></span><br><span class="line">A | B = <span class="number">10011001</span></span><br><span class="line"></span><br><span class="line"># 例子2</span><br><span class="line">    A = <span class="number">10001001</span></span><br><span class="line">    C = <span class="number">10001000</span></span><br><span class="line">A | C = <span class="number">10001001</span></span><br><span class="line">复制代码</span><br><span class="line"># 例子1</span><br><span class="line">    A = <span class="number">10001001</span></span><br><span class="line">    B = <span class="number">10010000</span></span><br><span class="line">A &amp; B = <span class="number">10000000</span></span><br><span class="line"></span><br><span class="line"># 例子2</span><br><span class="line">    A = <span class="number">10001001</span></span><br><span class="line">    C = <span class="number">10001000</span></span><br><span class="line">A &amp; C = <span class="number">10001000</span></span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<h2 id="3-位运算在权限系统中的使用"><a href="#3-位运算在权限系统中的使用" class="headerlink" title="3. 位运算在权限系统中的使用"></a>3. 位运算在权限系统中的使用</h2><p>传统的权限系统里，存在很多关联关系，如用户和权限的关联，用户和角色的关联。系统越大，关联关系越多，越难以维护。而引入位运算，可以巧妙的解决该问题。</p>
+<p>在讲“位运算在权限系统中的使用”之前，我们先假定两个前提，<strong>下文所有的讨论都是基于这两个前提的</strong>：</p>
+<ol>
+<li>每种权限码都是唯一的（这是显然的）</li>
+<li>所有权限码的二进制数形式，有且只有一位值为 1，其余全部为 0（<code>2^n</code>）</li>
+</ol>
+<p>如果用户权限和权限码，全部使用二级制数字表示，再结合上面 <code>AND</code> 和 <code>OR</code> 的例子，分析位运算的特点，不难发现：</p>
+<ul>
+<li><code>|</code> 可以用来赋予权限</li>
+<li><code>&amp;</code> 可以用来校验权限</li>
+</ul>
+<p>为了讲的更明白，这里用 Linux 中的实例分析下，Linux 的文件权限分为读、写和执行，有字母和数字等多种表现形式：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">权限</th>
+<th style="text-align:left">字母表示</th>
+<th style="text-align:left">数字表示</th>
+<th style="text-align:left">二进制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">读</td>
+<td style="text-align:left">r</td>
+<td style="text-align:left">4</td>
+<td style="text-align:left">0b100</td>
+</tr>
+<tr>
+<td style="text-align:left">写</td>
+<td style="text-align:left">w</td>
+<td style="text-align:left">2</td>
+<td style="text-align:left">0b010</td>
+</tr>
+<tr>
+<td style="text-align:left">执行</td>
+<td style="text-align:left">x</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">0b001</td>
+</tr>
+</tbody>
+</table>
+<p>可以看到，权限用 1、2、4（也就是 <code>2^n</code>）表示，转换为二进制后，都是只有一位是 1，其余为 0。我们通过几个例子看下，如何利用二进制的特点执行权限的添加，校验和删除。</p>
+<h3 id="3-1-添加权限"><a href="#3-1-添加权限" class="headerlink" title="3.1. 添加权限"></a>3.1. 添加权限</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> r = <span class="number">0b100</span></span><br><span class="line"><span class="keyword">let</span> w = <span class="number">0b010</span></span><br><span class="line"><span class="keyword">let</span> x = <span class="number">0b001</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 给用户赋全部权限（使用前面讲的 | 操作）</span></span><br><span class="line"><span class="keyword">let</span> user = r | w | x</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(user)</span><br><span class="line"><span class="comment">// 7</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(user.toString(<span class="number">2</span>))</span><br><span class="line"><span class="comment">// 111</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//     r = 0b100</span></span><br><span class="line"><span class="comment">//     w = 0b010</span></span><br><span class="line"><span class="comment">//     r = 0b001</span></span><br><span class="line"><span class="comment">// r|w|x = 0b111</span></span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p>可以看到，执行 <code>r | w | x</code> 后，<code>user</code> 的三位都是 1，表明拥有了全部三个权限。</p>
+<blockquote>
+<p>Linux 下出现权限问题时，最粗暴的解决方案就是 <code>chmod 777 xxx</code>，这里的 <code>7</code> 就代表了：可读，可写，可执行。而三个 <code>7</code> 分别代表：文件所有者，文件所有者所在组，所有其他用户。</p>
+</blockquote>
+<h3 id="3-2-校验权限"><a href="#3-2-校验权限" class="headerlink" title="3.2. 校验权限"></a>3.2. 校验权限</h3><p>刚才演示了权限的添加，下面演示权限校验：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> r = <span class="number">0b100</span></span><br><span class="line"><span class="keyword">let</span> w = <span class="number">0b010</span></span><br><span class="line"><span class="keyword">let</span> x = <span class="number">0b001</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 给用户赋 r w 两个权限</span></span><br><span class="line"><span class="keyword">let</span> user = r | w</span><br><span class="line"><span class="comment">// user = 6</span></span><br><span class="line"><span class="comment">// user = 0b110 (二进制)</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log((user &amp; r) === r) <span class="comment">// true  有 r 权限</span></span><br><span class="line"><span class="built_in">console</span>.log((user &amp; w) === w) <span class="comment">// true  有 w 权限</span></span><br><span class="line"><span class="built_in">console</span>.log((user &amp; x) === x) <span class="comment">// false 没有 x 权限</span></span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p>如前所料，通过 <code>用户权限 &amp; 权限 code === 权限 code</code> 就可以判断出用户是否拥有该权限。</p>
+<h3 id="3-3-删除权限"><a href="#3-3-删除权限" class="headerlink" title="3.3. 删除权限"></a>3.3. 删除权限</h3><p>我们讲了用 <code>|</code> 赋予权限，使用 <code>&amp;</code> 判断权限，那么删除权限呢？删除权限的本质其实是<strong>将指定位置上的 1 重置为 0</strong>。上个例子里用户权限是 <code>0b110</code>，拥有读和写两个权限，现在想删除读的权限，本质上就是将第三位的 1 重置为 0，变为 <code>0b010</code>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> r = <span class="number">0b100</span></span><br><span class="line"><span class="keyword">let</span> w = <span class="number">0b010</span></span><br><span class="line"><span class="keyword">let</span> x = <span class="number">0b001</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> user = <span class="number">0b010</span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log((user &amp; r) === r) <span class="comment">// false 没有 r 权限</span></span><br><span class="line"><span class="built_in">console</span>.log((user &amp; w) === w) <span class="comment">// true  有 w 权限</span></span><br><span class="line"><span class="built_in">console</span>.log((user &amp; x) === x) <span class="comment">// false 没有 x 权限</span></span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p>那么具体怎么操作呢？其实有两种方案，最简单的就是异或 <code>^</code>，按照上文的介绍“当两个操作数相应的比特位有且只有一个 1 时，结果为 1，否则为 0”，所以异或其实是 toggle 操作，无则增，有则减：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> r    = <span class="number">0b100</span></span><br><span class="line"><span class="keyword">let</span> w    = <span class="number">0b010</span></span><br><span class="line"><span class="keyword">let</span> x    = <span class="number">0b001</span></span><br><span class="line"><span class="keyword">let</span> user = <span class="number">0b110</span> <span class="comment">// 有 r w 两个权限</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 执行异或操作，删除 r 权限</span></span><br><span class="line">user = user ^ r</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log((user &amp; r) === r) <span class="comment">// false 没有 r 权限</span></span><br><span class="line"><span class="built_in">console</span>.log((user &amp; w) === w) <span class="comment">// true  有 w 权限</span></span><br><span class="line"><span class="built_in">console</span>.log((user &amp; x) === x) <span class="comment">// false 没有 x 权限</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(user.toString(<span class="number">2</span>)) <span class="comment">// 现在 user 是 0b010</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 再执行一次异或操作</span></span><br><span class="line">user = user ^ r</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log((user &amp; r) === r) <span class="comment">// true  有 r 权限</span></span><br><span class="line"><span class="built_in">console</span>.log((user &amp; w) === w) <span class="comment">// true  有 w 权限</span></span><br><span class="line"><span class="built_in">console</span>.log((user &amp; x) === x) <span class="comment">// false 没有 x 权限</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(user.toString(<span class="number">2</span>)) <span class="comment">// 现在 user 又变回 0b110</span></span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p>那么如果单纯的想删除权限（而不是无则增，有则减）怎么办呢？答案是执行 <code>&amp;(~code)</code>，先取反，再执行与操作：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> r    = <span class="number">0b100</span></span><br><span class="line"><span class="keyword">let</span> w    = <span class="number">0b010</span></span><br><span class="line"><span class="keyword">let</span> x    = <span class="number">0b001</span></span><br><span class="line"><span class="keyword">let</span> user = <span class="number">0b110</span> <span class="comment">// 有 r w 两个权限</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 删除 r 权限</span></span><br><span class="line">user = user &amp; (~r)</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log((user &amp; r) === r) <span class="comment">// false 没有 r 权限</span></span><br><span class="line"><span class="built_in">console</span>.log((user &amp; w) === w) <span class="comment">// true  有 w 权限</span></span><br><span class="line"><span class="built_in">console</span>.log((user &amp; x) === x) <span class="comment">// false 没有 x 权限</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(user.toString(<span class="number">2</span>)) <span class="comment">// 现在 user 是 0b010</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 再执行一次</span></span><br><span class="line">user = user &amp; (~r)</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log((user &amp; r) === r) <span class="comment">// false 没有 r 权限</span></span><br><span class="line"><span class="built_in">console</span>.log((user &amp; w) === w) <span class="comment">// true  有 w 权限</span></span><br><span class="line"><span class="built_in">console</span>.log((user &amp; x) === x) <span class="comment">// false 没有 x 权限</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(user.toString(<span class="number">2</span>)) <span class="comment">// 现在 user 还是 0b010，并不会新增</span></span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<h2 id="4-局限性和解决办法"><a href="#4-局限性和解决办法" class="headerlink" title="4. 局限性和解决办法"></a>4. 局限性和解决办法</h2><p>前面我们回顾了 JavaScript 中的 Number 和位运算，并且了解了基于位运算的权限系统原理和 Linux 文件系统权限的实例。</p>
+<p>上述的所有都有前提条件：1、<strong>每种权限码都是唯一的</strong>；2、<strong>每个权限码的二进制数形式，有且只有一位值为 1（<code>2^n</code>）</strong>。也就是说，权限码只能是 1, 2, 4, 8,…,1024,…而上文提到，一个数字的范围只能在 -(2^53 -1) 和 2^53 -1 之间，JavaScript 的按位操作符又是将其操作数当作 <strong>32 位</strong>比特序列的。那么同一个应用下可用的权限数就非常有限了。这也是该方案的局限性。</p>
+<p>为了突破这个限制，这里提出一个叫“权限空间”的概念，既然权限数有限，那么不妨就多开辟几个空间来存放。</p>
+<p>基于权限空间，我们定义两个格式：</p>
+<ol>
+<li><strong>权限 code</strong>，字符串，形如 <code>index,pos</code>。其中 <code>pos</code> 表示 32 位二进制数中 1 的位置（其余全是 0）； <code>index</code> 表示<strong>权限空间</strong>，用于突破 JavaScript 数字位数的限制，是从 0 开始的正整数，每个权限code都要归属于一个权限空间。<code>index</code> 和 <code>pos</code> 使用英文逗号隔开。</li>
+<li><strong>用户权限</strong>，字符串，形如 <code>1,16,16</code>。英文逗号分隔每一个<strong>权限空间</strong>的权限值。例如 <code>1,16,16</code> 的意思就是，权限空间 0 的权限值是 1，权限空间 1 的权限值是 16，权限空间 2 的权限是 16。</li>
+</ol>
+<p>干说可能不好懂，直接上代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 用户的权限 code</span></span><br><span class="line"><span class="keyword">let</span> userCode = <span class="string">""</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 假设系统里有这些权限</span></span><br><span class="line"><span class="comment">// 纯模拟，正常情况下是按顺序的，如 0,0 0,1 0,2 ...，尽可能占满一个权限空间，再使用下一个</span></span><br><span class="line"><span class="keyword">const</span> permissions = &#123;</span><br><span class="line">  SYS_SETTING: &#123;</span><br><span class="line">    value: <span class="string">"0,0"</span>,   <span class="comment">// index = 0, pos = 0</span></span><br><span class="line">    info: <span class="string">"系统权限"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  DATA_ADMIN: &#123;</span><br><span class="line">    value: <span class="string">"0,8"</span>,</span><br><span class="line">    info: <span class="string">"数据库权限"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  USER_ADD: &#123;</span><br><span class="line">    value: <span class="string">"0,22"</span>,</span><br><span class="line">    info: <span class="string">"用户新增权限"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  USER_EDIT: &#123;</span><br><span class="line">    value: <span class="string">"0,30"</span>,</span><br><span class="line">    info: <span class="string">"用户编辑权限"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  USER_VIEW: &#123;</span><br><span class="line">    value: <span class="string">"1,2"</span>,   <span class="comment">// index = 1, pos = 2</span></span><br><span class="line">    info: <span class="string">"用户查看权限"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  USER_DELETE: &#123;</span><br><span class="line">    value: <span class="string">"1,17"</span>,</span><br><span class="line">    info: <span class="string">"用户删除权限"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  POST_ADD: &#123;</span><br><span class="line">    value: <span class="string">"1,28"</span>,</span><br><span class="line">    info: <span class="string">"文章新增权限"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  POST_EDIT: &#123;</span><br><span class="line">    value: <span class="string">"2,4"</span>,</span><br><span class="line">    info: <span class="string">"文章编辑权限"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  POST_VIEW: &#123;</span><br><span class="line">    value: <span class="string">"2,19"</span>,</span><br><span class="line">    info: <span class="string">"文章查看权限"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  POST_DELETE: &#123;</span><br><span class="line">    value: <span class="string">"2,26"</span>,</span><br><span class="line">    info: <span class="string">"文章删除权限"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 添加权限</span></span><br><span class="line"><span class="keyword">const</span> addPermission = <span class="function">(<span class="params">userCode, permission</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> userPermission = userCode ? userCode.split(<span class="string">","</span>) : []</span><br><span class="line">  <span class="keyword">const</span> [index, pos] = permission.value.split(<span class="string">","</span>)</span><br><span class="line"></span><br><span class="line">  userPermission[index] = (userPermission[index] || <span class="number">0</span>) | <span class="built_in">Math</span>.pow(<span class="number">2</span>, pos)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> userPermission.join(<span class="string">","</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 删除权限</span></span><br><span class="line"><span class="keyword">const</span> delPermission = <span class="function">(<span class="params">userCode, permission</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> userPermission = userCode ? userCode.split(<span class="string">","</span>) : []</span><br><span class="line">  <span class="keyword">const</span> [index, pos] = permission.value.split(<span class="string">","</span>)</span><br><span class="line"></span><br><span class="line">  userPermission[index] = (userPermission[index] || <span class="number">0</span>) &amp; (~<span class="built_in">Math</span>.pow(<span class="number">2</span>, pos))</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> userPermission.join(<span class="string">","</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 判断是否有权限</span></span><br><span class="line"><span class="keyword">const</span> hasPermission = <span class="function">(<span class="params">userCode, permission</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> userPermission = userCode ? userCode.split(<span class="string">","</span>) : []</span><br><span class="line">  <span class="keyword">const</span> [index, pos] = permission.value.split(<span class="string">","</span>)</span><br><span class="line">  <span class="keyword">const</span> permissionValue = <span class="built_in">Math</span>.pow(<span class="number">2</span>, pos)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (userPermission[index] &amp; permissionValue) === permissionValue</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 列出用户拥有的全部权限</span></span><br><span class="line"><span class="keyword">const</span> listPermission = <span class="function"><span class="params">userCode</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> results = []</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!userCode) &#123;</span><br><span class="line">    <span class="keyword">return</span> results</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">Object</span>.values(permissions).forEach(<span class="function"><span class="params">permission</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (hasPermission(userCode, permission)) &#123;</span><br><span class="line">      results.push(permission.info)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> results</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> log = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`userCode: <span class="subst">$&#123;<span class="built_in">JSON</span>.stringify(userCode, <span class="literal">null</span>, <span class="string">" "</span>)&#125;</span>`</span>)</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`权限列表: <span class="subst">$&#123;listPermission(userCode).join(<span class="string">"; "</span>)&#125;</span>`</span>)</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">""</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">userCode = addPermission(userCode, permissions.SYS_SETTING)</span><br><span class="line">log()</span><br><span class="line"><span class="comment">// userCode: "1"</span></span><br><span class="line"><span class="comment">// 权限列表: 系统权限</span></span><br><span class="line"></span><br><span class="line">userCode = addPermission(userCode, permissions.POST_EDIT)</span><br><span class="line">log()</span><br><span class="line"><span class="comment">// userCode: "1,,16"</span></span><br><span class="line"><span class="comment">// 权限列表: 系统权限; 文章编辑权限</span></span><br><span class="line"></span><br><span class="line">userCode = addPermission(userCode, permissions.USER_EDIT)</span><br><span class="line">log()</span><br><span class="line"><span class="comment">// userCode: "1073741825,,16"</span></span><br><span class="line"><span class="comment">// 权限列表: 系统权限; 用户编辑权限; 文章编辑权限</span></span><br><span class="line"></span><br><span class="line">userCode = addPermission(userCode, permissions.USER_DELETE)</span><br><span class="line">log()</span><br><span class="line"><span class="comment">// userCode: "1073741825,131072,16"</span></span><br><span class="line"><span class="comment">// 权限列表: 系统权限; 用户编辑权限; 用户删除权限; 文章编辑权限</span></span><br><span class="line"></span><br><span class="line">userCode = delPermission(userCode, permissions.USER_EDIT)</span><br><span class="line">log()</span><br><span class="line"><span class="comment">// userCode: "1,131072,16"</span></span><br><span class="line"><span class="comment">// 权限列表: 系统权限; 用户删除权限; 文章编辑权限</span></span><br><span class="line"></span><br><span class="line">userCode = delPermission(userCode, permissions.USER_EDIT)</span><br><span class="line">log()</span><br><span class="line"><span class="comment">// userCode: "1,131072,16"</span></span><br><span class="line"><span class="comment">// 权限列表: 系统权限; 用户删除权限; 文章编辑权限</span></span><br><span class="line"></span><br><span class="line">userCode = delPermission(userCode, permissions.USER_DELETE)</span><br><span class="line">userCode = delPermission(userCode, permissions.SYS_SETTING)</span><br><span class="line">userCode = delPermission(userCode, permissions.POST_EDIT)</span><br><span class="line">log()</span><br><span class="line"><span class="comment">// userCode: "0,0,0"</span></span><br><span class="line"><span class="comment">// 权限列表: </span></span><br><span class="line"></span><br><span class="line">userCode = addPermission(userCode, permissions.SYS_SETTING)</span><br><span class="line">log()</span><br><span class="line"><span class="comment">// userCode: "1,0,0"</span></span><br><span class="line"><span class="comment">// 权限列表: 系统权限</span></span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p>除了通过引入<strong>权限空间</strong>的概念突破二进制运算的位数限制，还可以使用 <a href="http://mathjs.org" target="_blank" rel="noopener">math.js</a> 的 <code>bignumber</code>，直接运算超过 32 位的二进制数，具体可以看它的文档，这里就不细说了。</p>
+<h2 id="5-适用场景和问题"><a href="#5-适用场景和问题" class="headerlink" title="5. 适用场景和问题"></a>5. 适用场景和问题</h2><p>如果按照当前使用最广泛的 <a href="https://zh.wikipedia.org/wiki/以角色為基礎的存取控制" target="_blank" rel="noopener">RBAC</a> 模型设计权限系统，那么一般会有这么几个实体：应用，权限，角色，用户。用户权限可以直接来自权限，也可以来自角色：</p>
+<ul>
+<li>一个应用下有多个权限</li>
+<li>权限和角色是多对多的关系</li>
+<li>用户和角色是多对多的关系</li>
+<li>用户和权限是多对多的关系</li>
+</ul>
+<p>在此种模型下，一般会有用户与权限，用户与角色，角色与权限的对应关系表。想象一个商城后台权限管理系统，可能会有上万，甚至十几万店铺（应用），每个店铺可能会有数十个用户，角色，权限。随着业务的不断发展，刚才提到的那三张对应关系表会越来越大，越来越难以维护。</p>
+<p>而进制转换的方法则可以省略对应关系表，减少查询，节省空间。当然，省略掉对应关系不是没有坏处的，例如下面几个问题：</p>
+<ul>
+<li>如何高效的查找我的权限？</li>
+<li>如何高效的查找拥有某权限的所有用户？</li>
+<li>如何控制权限的有效期？</li>
+</ul>
+<p>所以进制转换的方案比较适合刚才提到的应用极其多，而每个应用中用户，权限，角色数量较少的场景。</p>
+<h2 id="6-其他方案"><a href="#6-其他方案" class="headerlink" title="6. 其他方案"></a>6. 其他方案</h2><p>除了二进制方案，当然还有其他方案可以达到类似的效果，例如直接使用一个1和0组成的字符串，权限点对应index，1表示拥有权限，0表示没有权限。举个例子：添加 0、删除 1、编辑 2，用户A拥有添加和编辑的权限，则 userCode 为 101；用户B拥有全部权限，userCode 为 111。这种方案比二进制转换简单，但是浪费空间。</p>
+<p>还有利用质数的方案，权限点全部为质数，用户权限为他所拥有的全部权限点的乘积。如：权限点是 2、3、5、7、11，用户权限是 5 <em> 7 </em> 11 = 385。这种方案麻烦的地方在于获取质数（新增权限点）和质因数分解（判断权限），权限点特别多的时候就快成 RSA 了，如果只有增删改查个别几个权限，倒是可以考虑。</p>
+<h2 id="7-参考"><a href="#7-参考" class="headerlink" title="7. 参考"></a>7. 参考</h2><ul>
+<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Numbers_and_dates" target="_blank" rel="noopener">MDN：JavaScript 数字和日期</a></li>
+<li><a href="https://zh.wikipedia.org/wiki/雙精度浮點數" target="_blank" rel="noopener">双精度浮点类型</a></li>
+<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators" target="_blank" rel="noopener">MDN：按位操作符</a></li>
+<li><a href="https://www.jianshu.com/p/11f331d97ec2" target="_blank" rel="noopener">【小知识大道理】被忽视的位运算</a></li>
+<li><a href="http://jerryzou.com/posts/do-you-really-want-use-bit-operators-in-JavaScript/" target="_blank" rel="noopener">为什么不要在 JavaScript 中使用位操作符？</a></li>
+<li><a href="https://mp.weixin.qq.com/s/MKljuxfDMmopr_MrnYljGw" target="_blank" rel="noopener">角色权限设计的100种解法</a></li>
+<li><a href="http://www.cnblogs.com/shijiaqi1066/p/3793894.html" target="_blank" rel="noopener">权限系统与RBAC模型概述</a></li>
+<li><a href="https://blog.csdn.net/yingchunhua365/article/details/14090461" target="_blank" rel="noopener">权限设计及算法</a></li>
+<li><a href="https://zh.wikipedia.org/wiki/以角色為基礎的存取控制" target="_blank" rel="noopener">基于角色的访问控制</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>您的支持将鼓励我继续创作！</div>
+  <button style="outline: none;padding: 0 25px;font-size: 16px;color: #fff;background-color: #ea6f5a;border-radius: 20px;" id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赞赏支持</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img style="width: 180px" id="wechat_qr" src="http://www.leqikeji.cn/myImgs/wechat-reward-image.jpg" alt="Experor、宇 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img style="width: 180px" id="alipay_qr" src="http://www.leqikeji.cn/myImgs/alipay-reward-image.jpg" alt="Experor、宇 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/算法/" rel="tag"># -算法</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2020/04/08/DFS和BFS/" rel="next" title="DFS和BFS小结">
+                <i class="fa fa-chevron-left"></i> DFS和BFS小结
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2020/09/01/Composition API/" rel="prev" title="Composition API归纳">
+                Composition API归纳 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="SOHUCS"></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="http://leqikeji.cn/myImgs/title.jpg"
+                alt="Experor、宇" />
+            
+              <p class="site-author-name" itemprop="name">Experor、宇</p>
+              <p class="site-description motion-element" itemprop="description">解翔宇的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/blog/archives/">
+              
+                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/blog/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/blog/tags/index.html">
+                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/experor-xxy" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://weibo.com/u/3182373863/home" target="_blank" title="微博">
+                      
+                        <i class="fa fa-fw fa-globe"></i>微博</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:stevenDxxy@163.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-内容概要"><span class="nav-number">1.</span> <span class="nav-text">1. 内容概要</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-JavaScript-位运算"><span class="nav-number">2.</span> <span class="nav-text">2. JavaScript 位运算</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-Number"><span class="nav-number">2.1.</span> <span class="nav-text">2.1. Number</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-位运算"><span class="nav-number">2.2.</span> <span class="nav-text">2.2. 位运算</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-位运算在权限系统中的使用"><span class="nav-number">3.</span> <span class="nav-text">3. 位运算在权限系统中的使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-添加权限"><span class="nav-number">3.1.</span> <span class="nav-text">3.1. 添加权限</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-校验权限"><span class="nav-number">3.2.</span> <span class="nav-text">3.2. 校验权限</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-删除权限"><span class="nav-number">3.3.</span> <span class="nav-text">3.3. 删除权限</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-局限性和解决办法"><span class="nav-number">4.</span> <span class="nav-text">4. 局限性和解决办法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-适用场景和问题"><span class="nav-number">5.</span> <span class="nav-text">5. 适用场景和问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-其他方案"><span class="nav-number">6.</span> <span class="nav-text">6. 其他方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-参考"><span class="nav-number">7.</span> <span class="nav-text">7. 参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Experor、宇</span>
+
+  
+  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAATCAYAAACdkl3yAAAEX0lEQVR42m2TWWyUBRSFv3+dfzprpxstgVIKpQitFgqYAhIRNJGwSPRBUHnAuAXjEknUUI34osYYHyCE6IOIIIoGicEm7Js1haJUbCltoYWWtrSdmc60s/y7L6QR9b6dh/vdk5xzZf5nLp/dW5ETVNf4uPIYjjBdVHRXlLXrI8mpp32h4l+mVa5q+feO/E8xHj87OTHQXK+PtT8jiaJPN/2oWhm6mQZ7oNznyz5qJjrre698vSNSXPqRL39Z7D+gxNDxmmTP9wd0x6oQ3BKkhm60c9cRBRNZdDBFBXPxTKTFVV7o3poaal6TiB5/OpS34o8JUG/Pscpo1+GDgpQtV/uyaNt3kdMygFMsodeGUD0CwcYk7qHzjM4rw3h/A0Jl0azEzdZd3Z0n15fNXN4vA9jJy9tse6Dc32/if/0c2lACUZGIBRViK8NIhQUUdbSSMwSFbX0ktuwm9cUWxEmpRYLR9wqwTR6Pnq4ead/7lKZF8Hx8FCk5xp23ZhA6HiXUFsM+F8P2gdplk1yaR2ZJAZFP2jA+2If05WYMs3tLMtq4VzbHLq7zF6ZUo0nA39wLGnguxnCHLOxgmMgPSVw1hRNWEfoyKBdiyK5A7oUuRjp6CdQUhaxU5wbZzCQWGYaGfPEWkmsjZCD/2DDpYo1kfS3eXV0QsdA3FeCv7yPYcBsACVCuDmJV52Cke+fLY/FMGWKQnGgS4W6CLiAnDdTvWvF0xHElgAxiPHNPb8SW2xjrHySbiBbKak7AowTiyJHAPQWz76tEnD4Hs9RBEGxcWcEZaELouIV795iSp2EoEqI8JSjH78QGS/z6dGumH+eu5YziIfbOk6jz5yE5Mkgyrscke7gQ5YWdSIAFZB+IIGWvYaWCN2VPqOw0xp91zjyZ9Ku1eH0hzLAPuTyOMH4MQVBxBQM360Gq8WC+txZbd0nHU4hzfWANEiisOSqrvhkHx2KXtub4vYr99gr0lIjs6GhjBiTSSK6FI1jYqoHkzcPeWI2j+TFtCyPWjZ7MHcsvn3VILqtafbn1VP1+qbF1k1Q7gtgcRfn0V7S4iRtRsOqKEfqTeK8lEEd1rFIf+pt1OGVB3H4X5f4lu8MlD9+QASYVLv3QennfarXIiVifr8XdUYK6/zz28nyclTUIroSz8zx2+zDmG3NxXRXvayegtPSab/mLn038mhKzRtThhJttj6KsO4D9Uh3jj09B7hhD2t6ELcnoVUU4CyNoP/chHriBfnsEn6d4IFCyZGACZF5qmeOJRvNkwEolUb79DSc/BNWTEBeEIJVFONuJp2cUIW2QHU7gBdzu7prMmZ+C3mXrkjLAYN7UvvFly/ZUnDmzSZvsp+f5J8htuo7rWmgzwjCcQfBmGV1YgT47xLR39xF3FKNrwfxvYo2/2xOO5jy78VbbkYbNR0aiVz1DQ1X+dvGUffLqc4FEsqCn4WZ/OGuEc/uH88Znz/6rNT33RL8n8Ii0dtVXD+3Z8yMNRwH4G+Nk9O/mybiiAAAAAElFTkSuQmCC" style="display: inline-block">
+  <a href="https://beian.miit.gov.cn/"  style="color:#f72b07" target="_blank">京ICP备18018172号</a>
+</div>
+
+
+  <div class="powered-by">Powered by xxy</div>
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/blog/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+  
+    <script type="text/javascript">
+    (function(){
+      var appid = 'cytAYqgWY';
+      var conf = 'fc1e2fb4761474d3d93c28cde463f12f';
+      var width = window.innerWidth || document.documentElement.clientWidth;
+      if (width < 960) {
+      window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>'); } else { var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("https://changyan.sohu.com/upload/changyan.js",function(){
+        window.changyan.api.config({appid:appid,conf:conf})});
+      }
+    })();
+    </script>
+    <script type="text/javascript" src="https://assets.changyan.sohu.com/upload/plugins/plugins.count.js"></script>
+  
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

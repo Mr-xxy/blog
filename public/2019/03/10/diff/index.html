@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/blog/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/blog/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="算法," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Diff三种策略 Diff算法的作用是用来计算出 Virtual DOM 中被改变的部分，然后针对该部分进行原生DOM操作，而不用重新渲染整个页面。">
+<meta name="keywords" content="算法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="diff算法">
+<meta property="og:url" content="http://www.leqikeji.com/blog/2019/03/10/diff/index.html">
+<meta property="og:site_name" content="Experor、宇的个人博客">
+<meta property="og:description" content="Diff三种策略 Diff算法的作用是用来计算出 Virtual DOM 中被改变的部分，然后针对该部分进行原生DOM操作，而不用重新渲染整个页面。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://leqikeji.cn/blogImg/diff.png">
+<meta property="og:image" content="http://leqikeji.cn/blogImg/diff_demo.png">
+<meta property="og:image" content="http://leqikeji.cn/blogImg/element_diff.png">
+<meta property="og:updated_time" content="2019-12-25T03:34:10.428Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="diff算法">
+<meta name="twitter:description" content="Diff三种策略 Diff算法的作用是用来计算出 Virtual DOM 中被改变的部分，然后针对该部分进行原生DOM操作，而不用重新渲染整个页面。">
+<meta name="twitter:image" content="http://leqikeji.cn/blogImg/diff.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.leqikeji.com/blog/2019/03/10/diff/"/>
+
+
+
+
+
+  <title>diff算法 | Experor、宇的个人博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Experor、宇的个人博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">没有比脚更长的路，走过去，前面是个天！</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/blog/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/blog/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/blog/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/blog/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/blog/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.leqikeji.com/blog/blog/2019/03/10/diff/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Experor、宇">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="http://leqikeji.cn/myImgs/title.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Experor、宇的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">diff算法</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-10T15:57:40+08:00">
+                2019-03-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/技术分享/" itemprop="url" rel="index">
+                    <span itemprop="name">技术分享</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-comment-o"></i>
+              </span>
+              
+                <a href="/blog/2019/03/10/diff/#SOHUCS" itemprop="discussionUrl">
+                  <span id="changyan_count_unit" class="post-comments-count hc-comment-count" data-xid="2019/03/10/diff/" itemprop="commentsCount"></span>
+                </a>
+              
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="Diff三种策略"><a href="#Diff三种策略" class="headerlink" title="Diff三种策略"></a>Diff三种策略</h4><p><img src="http://leqikeji.cn/blogImg/diff.png" alt="img"></p>
+<p>Diff算法的作用是用来计算出 <strong>Virtual DOM</strong> 中被改变的部分，然后针对该部分进行原生DOM操作，而不用重新渲染整个页面。<br><a id="more"></a><br>Diff算法有三大策略：</p>
+<blockquote>
+<ol>
+<li>Tree Diff</li>
+<li>Component Diff</li>
+<li>Element Diff</li>
+</ol>
+</blockquote>
+<p>三种策略的执行顺序也是顺序依次执行。<br><strong>Tree Diff</strong> 是对树每一层进行遍历，找出不同，如图所示。</p>
+<p><img src="http://leqikeji.cn/blogImg/diff_demo.png" alt="img"></p>
+<p><strong>Component Diff</strong> 是数据层面的差异比较</p>
+<p>如果都是同一类型的组件(即：两节点是同一个组件类的两个不同实例，比如：<div id="before"></div>与<div id="after"></div>)，按照原策略继续比较Virtual DOM树即可</p>
+<p>如果出现不是同一类型的组件，则将该组件判断为dirty component，从而替换整个组件下的所有子节点</p>
+<p><strong>Element Diff</strong>真实DOM渲染，结构差异的比较</p>
+<p>首先进行第一层比较，第一层都是R，不发生变化；然后进入第二层Component Diff，发现A组件没有，则删除A及其子组件B、C；最后比较第三层，创建A及其子组件B、C。</p>
+<p>当节点处于同一层级时，Diff提供三种DOM操作：<strong>删除</strong>、<strong>移动</strong>、<strong>插入</strong>。<br> <img src="http://leqikeji.cn/blogImg/element_diff.png" alt="img"></p>
+<p>如图所示，首先将OldVnode 和 NewVnode的首尾位置分别标记为oldS、oldE、newS、newE。</p>
+<p>(1)  oldS和newS相同，不发生变化，oldS++，newS++。</p>
+<blockquote>
+<p>oldS = a，oldE = d<br> newS = a, newE = c</p>
+</blockquote>
+<p>(2)  newS与OldVnode不匹配，oldS前面插入f，newS++。</p>
+<blockquote>
+<p>oldS = b，oldE = d<br> newS = f， newE = c</p>
+</blockquote>
+<p>(3)  newS与oldE相同，oldE移动到oldS前面，newS++，oldE–。</p>
+<blockquote>
+<p>oldS = b，oldE = d<br> newS = d， newE = c</p>
+</blockquote>
+<p>(4)  newE与oldE相同，不发生变化，newE–，oldE–。</p>
+<blockquote>
+<p>oldS = b，oldE = c<br> newS = e， newE = c</p>
+</blockquote>
+<p>(5)  都不相同，oldS前插入newE，删除oldS，oldS++，newS++，newE–，oldE–。</p>
+<blockquote>
+<p>oldS = b，oldE = b<br> newS = e， newE = e</p>
+</blockquote>
+<p>(6)  oldS &gt; oldE，Diff结束，最后结果为：a、f、d、e、c。</p>
+<p><strong>最后附上核心源码分析：</strong><br><strong>patch</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">patch</span> (<span class="params">oldVnode, vnode</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// some code</span></span><br><span class="line">    <span class="keyword">if</span> (sameVnode(oldVnode, vnode)) &#123;</span><br><span class="line">        patchVnode(oldVnode, vnode)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">const</span> oEl = oldVnode.el <span class="comment">// 当前oldVnode对应的真实元素节点</span></span><br><span class="line">        <span class="keyword">let</span> parentEle = api.parentNode(oEl)  <span class="comment">// 父元素</span></span><br><span class="line">        createEle(vnode)  <span class="comment">// 根据Vnode生成新元素</span></span><br><span class="line">        <span class="keyword">if</span> (parentEle !== <span class="literal">null</span>) &#123;</span><br><span class="line">            api.insertBefore(parentEle, vnode.el, api.nextSibling(oEl)) <span class="comment">// 将新元素添加进父元素</span></span><br><span class="line">            api.removeChild(parentEle, oldVnode.el)  <span class="comment">// 移除以前的旧元素节点</span></span><br><span class="line">            oldVnode = <span class="literal">null</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// some code </span></span><br><span class="line">    <span class="keyword">return</span> vnode</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">patchVnode (oldVnode, vnode) &#123;</span><br><span class="line">    <span class="keyword">const</span> el = vnode.el = oldVnode.el</span><br><span class="line">    <span class="keyword">let</span> i, oldCh = oldVnode.children, ch = vnode.children</span><br><span class="line">    <span class="keyword">if</span> (oldVnode === vnode) <span class="keyword">return</span></span><br><span class="line">    <span class="keyword">if</span> (oldVnode.text !== <span class="literal">null</span> &amp;&amp; vnode.text !== <span class="literal">null</span> &amp;&amp; oldVnode.text !== vnode.text) &#123;</span><br><span class="line">        api.setTextContent(el, vnode.text)</span><br><span class="line">    &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">        updateEle(el, vnode, oldVnode)</span><br><span class="line">        <span class="keyword">if</span> (oldCh &amp;&amp; ch &amp;&amp; oldCh !== ch) &#123;</span><br><span class="line">            updateChildren(el, oldCh, ch)</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span> (ch)&#123;</span><br><span class="line">            createEle(vnode) <span class="comment">//create el's children dom</span></span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span> (oldCh)&#123;</span><br><span class="line">            api.removeChildren(el)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个函数做了以下事情：</p>
+<ul>
+<li>找到对应的真实dom，称为el</li>
+<li>判断Vnode和oldVnode是否指向同一个对象，如果是，那么直接return</li>
+<li>如果他们都有文本节点并且不相等，那么将el的文本节点设置为Vnode的文本节点。</li>
+<li>如果oldVnode有子节点而Vnode没有，则删除el的子节点</li>
+<li>如果oldVnode没有子节点而Vnode有，则将Vnode的子节点真实化之后添加到el</li>
+<li>如果两者都有子节点，则执行updateChildren函数比较子节点</li>
+</ul>
+<p><strong>updateChildren</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">updateChildren</span> (<span class="params">parentElm, oldCh, newCh, insertedVnodeQueue, removeOnly</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> oldStartIdx = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">var</span> newStartIdx = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">var</span> oldEndIdx = oldCh.length - <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">var</span> oldStartVnode = oldCh[<span class="number">0</span>];</span><br><span class="line">    <span class="keyword">var</span> oldEndVnode = oldCh[oldEndIdx];</span><br><span class="line">    <span class="keyword">var</span> newEndIdx = newCh.length - <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">var</span> newStartVnode = newCh[<span class="number">0</span>];</span><br><span class="line">    <span class="keyword">var</span> newEndVnode = newCh[newEndIdx];</span><br><span class="line">    <span class="keyword">var</span> oldKeyToIdx, idxInOld, vnodeToMove, refElm;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> canMove = !removeOnly;</span><br><span class="line">    &#123;</span><br><span class="line">        checkDuplicateKeys(newCh);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// oldVnode起始位置小于结束位置并且newVnode起始位置小于结束位置</span></span><br><span class="line">    <span class="keyword">while</span> (oldStartIdx &lt;= oldEndIdx &amp;&amp; newStartIdx &lt;= newEndIdx) &#123;</span><br><span class="line">        <span class="comment">// isUndef 用来判断对象是否等于undefined或者为空，是的话返回true</span></span><br><span class="line">        <span class="keyword">if</span> (isUndef(oldStartVnode)) &#123;</span><br><span class="line">            <span class="comment">// oldVnode 起始位置oldS++</span></span><br><span class="line">            oldStartVnode = oldCh[++oldStartIdx]; <span class="comment">// Vnode has been moved left</span></span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (isUndef(oldEndVnode)) &#123;</span><br><span class="line">            <span class="comment">// oldVnode 结束位置oldE--</span></span><br><span class="line">            oldEndVnode = oldCh[--oldEndIdx];</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (sameVnode(oldStartVnode, newStartVnode)) &#123;</span><br><span class="line">            <span class="comment">// oldS和newS相同，不变化，进行patch，oldS++，newS++</span></span><br><span class="line">            patchVnode(oldStartVnode, newStartVnode, insertedVnodeQueue, newCh, newStartIdx);</span><br><span class="line">            oldStartVnode = oldCh[++oldStartIdx];</span><br><span class="line">            newStartVnode = newCh[++newStartIdx];</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (sameVnode(oldEndVnode, newEndVnode)) &#123;</span><br><span class="line">            <span class="comment">// oldE和newE相同，不变化，进行patch，oldE--，newE--</span></span><br><span class="line">            patchVnode(oldEndVnode, newEndVnode, insertedVnodeQueue, newCh, newEndIdx);</span><br><span class="line">            oldEndVnode = oldCh[--oldEndIdx];</span><br><span class="line">            newEndVnode = newCh[--newEndIdx];</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (sameVnode(oldStartVnode, newEndVnode)) &#123; <span class="comment">// Vnode moved right</span></span><br><span class="line">            <span class="comment">// oldS和newE相同，oldS移动到oldE之后，进行patch，oldS++，newE--</span></span><br><span class="line">            patchVnode(oldStartVnode, newEndVnode, insertedVnodeQueue, newCh, newEndIdx);</span><br><span class="line">            canMove &amp;&amp; nodeOps.insertBefore(parentElm, oldStartVnode.elm, nodeOps.nextSibling(oldEndVnode.elm));</span><br><span class="line">            oldStartVnode = oldCh[++oldStartIdx];</span><br><span class="line">            newEndVnode = newCh[--newEndIdx];</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (sameVnode(oldEndVnode, newStartVnode)) &#123; <span class="comment">// Vnode moved left</span></span><br><span class="line">            <span class="comment">// oldE和newS相同，oldE移动到oldS之前，进行patch，oldE--，newS++</span></span><br><span class="line">            patchVnode(oldEndVnode, newStartVnode, insertedVnodeQueue, newCh, newStartIdx);</span><br><span class="line">            canMove &amp;&amp; nodeOps.insertBefore(parentElm, oldEndVnode.elm, oldStartVnode.elm);</span><br><span class="line">            oldEndVnode = oldCh[--oldEndIdx];</span><br><span class="line">            newStartVnode = newCh[++newStartIdx];</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 全都不相同情况下</span></span><br><span class="line">            <span class="comment">// 获取oldVnode-&gt;index的key</span></span><br><span class="line">            <span class="keyword">if</span> (isUndef(oldKeyToIdx)) &#123;</span><br><span class="line">                oldKeyToIdx = createKeyToOldIdx(oldCh, oldStartIdx, oldEndIdx); </span><br><span class="line">            &#125;</span><br><span class="line">            idxInOld = isDef(newStartVnode.key)</span><br><span class="line">              ? oldKeyToIdx[newStartVnode.key]</span><br><span class="line">              : findIdxInOld(newStartVnode, oldCh, oldStartIdx, oldEndIdx);</span><br><span class="line">            <span class="keyword">if</span> (isUndef(idxInOld)) &#123; <span class="comment">// New element</span></span><br><span class="line">                <span class="comment">// oldVnode-&gt;index为undefined或null，说明没有该元素，创建新的元素</span></span><br><span class="line">                createElm(newStartVnode, insertedVnodeQueue, parentElm, oldStartVnode.elm, <span class="literal">false</span>, newCh, newStartIdx);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                  <span class="comment">// 获取oldVnode</span></span><br><span class="line">                  vnodeToMove = oldCh[idxInOld];</span><br><span class="line">                  <span class="keyword">if</span> (sameVnode(vnodeToMove, newStartVnode)) &#123;</span><br><span class="line">                      <span class="comment">// 创建的Vnode和newS相同，插入到oldS之前，进行patch</span></span><br><span class="line">                      patchVnode(vnodeToMove, newStartVnode, insertedVnodeQueue, newCh, newStartIdx);</span><br><span class="line">                      oldCh[idxInOld] = <span class="literal">undefined</span>;</span><br><span class="line">                      canMove &amp;&amp; nodeOps.insertBefore(parentElm, vnodeToMove.elm, oldStartVnode.elm);</span><br><span class="line">                  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                      <span class="comment">// 相同的key但是不一样的element. 被视为新的element</span></span><br><span class="line">                      createElm(newStartVnode, insertedVnodeQueue, parentElm, oldStartVnode.elm, <span class="literal">false</span>, newCh, newStartIdx);</span><br><span class="line">                  &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            newStartVnode = newCh[++newStartIdx];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 当oldS&gt;oldE时，将newS至newE间的全部插入</span></span><br><span class="line">    <span class="keyword">if</span> (oldStartIdx &gt; oldEndIdx) &#123;</span><br><span class="line">        refElm = isUndef(newCh[newEndIdx + <span class="number">1</span>]) ? <span class="literal">null</span> : newCh[newEndIdx + <span class="number">1</span>].elm;</span><br><span class="line">        addVnodes(parentElm, refElm, newCh, newStartIdx, newEndIdx, insertedVnodeQueue);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (newStartIdx &gt; newEndIdx) &#123;</span><br><span class="line">        <span class="comment">// 当newS&gt;newE，将oldS至oldE间的全部删除</span></span><br><span class="line">        removeVnodes(parentElm, oldCh, oldStartIdx, oldEndIdx);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>您的支持将鼓励我继续创作！</div>
+  <button style="outline: none;padding: 0 25px;font-size: 16px;color: #fff;background-color: #ea6f5a;border-radius: 20px;" id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赞赏支持</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img style="width: 180px" id="wechat_qr" src="http://www.leqikeji.cn/myImgs/wechat-reward-image.jpg" alt="Experor、宇 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img style="width: 180px" id="alipay_qr" src="http://www.leqikeji.cn/myImgs/alipay-reward-image.jpg" alt="Experor、宇 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/算法/" rel="tag"># 算法</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2018/07/11/3分钟了解BFC/" rel="next" title="3分钟了解BFC">
+                <i class="fa fa-chevron-left"></i> 3分钟了解BFC
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2019/04/12/js数组排序和算法排序/" rel="prev" title="js 数组排序和算法排序">
+                js 数组排序和算法排序 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="SOHUCS"></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="http://leqikeji.cn/myImgs/title.jpg"
+                alt="Experor、宇" />
+            
+              <p class="site-author-name" itemprop="name">Experor、宇</p>
+              <p class="site-description motion-element" itemprop="description">解翔宇的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/blog/archives/">
+              
+                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/blog/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/blog/tags/index.html">
+                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/experor-xxy" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://weibo.com/u/3182373863/home" target="_blank" title="微博">
+                      
+                        <i class="fa fa-fw fa-globe"></i>微博</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:stevenDxxy@163.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#Diff三种策略"><span class="nav-number">1.</span> <span class="nav-text">Diff三种策略</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Experor、宇</span>
+
+  
+  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAATCAYAAACdkl3yAAAEX0lEQVR42m2TWWyUBRSFv3+dfzprpxstgVIKpQitFgqYAhIRNJGwSPRBUHnAuAXjEknUUI34osYYHyCE6IOIIIoGicEm7Js1haJUbCltoYWWtrSdmc60s/y7L6QR9b6dh/vdk5xzZf5nLp/dW5ETVNf4uPIYjjBdVHRXlLXrI8mpp32h4l+mVa5q+feO/E8xHj87OTHQXK+PtT8jiaJPN/2oWhm6mQZ7oNznyz5qJjrre698vSNSXPqRL39Z7D+gxNDxmmTP9wd0x6oQ3BKkhm60c9cRBRNZdDBFBXPxTKTFVV7o3poaal6TiB5/OpS34o8JUG/Pscpo1+GDgpQtV/uyaNt3kdMygFMsodeGUD0CwcYk7qHzjM4rw3h/A0Jl0azEzdZd3Z0n15fNXN4vA9jJy9tse6Dc32/if/0c2lACUZGIBRViK8NIhQUUdbSSMwSFbX0ktuwm9cUWxEmpRYLR9wqwTR6Pnq4ead/7lKZF8Hx8FCk5xp23ZhA6HiXUFsM+F8P2gdplk1yaR2ZJAZFP2jA+2If05WYMs3tLMtq4VzbHLq7zF6ZUo0nA39wLGnguxnCHLOxgmMgPSVw1hRNWEfoyKBdiyK5A7oUuRjp6CdQUhaxU5wbZzCQWGYaGfPEWkmsjZCD/2DDpYo1kfS3eXV0QsdA3FeCv7yPYcBsACVCuDmJV52Cke+fLY/FMGWKQnGgS4W6CLiAnDdTvWvF0xHElgAxiPHNPb8SW2xjrHySbiBbKak7AowTiyJHAPQWz76tEnD4Hs9RBEGxcWcEZaELouIV795iSp2EoEqI8JSjH78QGS/z6dGumH+eu5YziIfbOk6jz5yE5Mkgyrscke7gQ5YWdSIAFZB+IIGWvYaWCN2VPqOw0xp91zjyZ9Ku1eH0hzLAPuTyOMH4MQVBxBQM360Gq8WC+txZbd0nHU4hzfWANEiisOSqrvhkHx2KXtub4vYr99gr0lIjs6GhjBiTSSK6FI1jYqoHkzcPeWI2j+TFtCyPWjZ7MHcsvn3VILqtafbn1VP1+qbF1k1Q7gtgcRfn0V7S4iRtRsOqKEfqTeK8lEEd1rFIf+pt1OGVB3H4X5f4lu8MlD9+QASYVLv3QennfarXIiVifr8XdUYK6/zz28nyclTUIroSz8zx2+zDmG3NxXRXvayegtPSab/mLn038mhKzRtThhJttj6KsO4D9Uh3jj09B7hhD2t6ELcnoVUU4CyNoP/chHriBfnsEn6d4IFCyZGACZF5qmeOJRvNkwEolUb79DSc/BNWTEBeEIJVFONuJp2cUIW2QHU7gBdzu7prMmZ+C3mXrkjLAYN7UvvFly/ZUnDmzSZvsp+f5J8htuo7rWmgzwjCcQfBmGV1YgT47xLR39xF3FKNrwfxvYo2/2xOO5jy78VbbkYbNR0aiVz1DQ1X+dvGUffLqc4FEsqCn4WZ/OGuEc/uH88Znz/6rNT33RL8n8Ii0dtVXD+3Z8yMNRwH4G+Nk9O/mybiiAAAAAElFTkSuQmCC" style="display: inline-block">
+  <a href="https://beian.miit.gov.cn/"  style="color:#f72b07" target="_blank">京ICP备18018172号</a>
+</div>
+
+
+  <div class="powered-by">Powered by xxy</div>
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/blog/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+  
+    <script type="text/javascript">
+    (function(){
+      var appid = 'cytAYqgWY';
+      var conf = 'fc1e2fb4761474d3d93c28cde463f12f';
+      var width = window.innerWidth || document.documentElement.clientWidth;
+      if (width < 960) {
+      window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>'); } else { var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("https://changyan.sohu.com/upload/changyan.js",function(){
+        window.changyan.api.config({appid:appid,conf:conf})});
+      }
+    })();
+    </script>
+    <script type="text/javascript" src="https://assets.changyan.sohu.com/upload/plugins/plugins.count.js"></script>
+  
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

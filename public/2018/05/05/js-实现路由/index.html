@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/blog/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/blog/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="route," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言&amp;emsp;&amp;emsp;前端路由是现代SPA应用必备的功能,每个现代前端框架都有对应的实现,例如vue-router、react-router。 我们不想探究vue-router或者react-router们的实现，因为不管是哪种路由无外乎用兼容性更好的hash实现或者是H5 History实现，与框架几个只需要做相应的封装即可。   提前声明: 我们没有对传入的参数进行及时判断而规避错误,也">
+<meta name="keywords" content="route">
+<meta property="og:type" content="article">
+<meta property="og:title" content="前端路由的实现">
+<meta property="og:url" content="http://www.leqikeji.com/blog/2018/05/05/js-实现路由/index.html">
+<meta property="og:site_name" content="Experor、宇的个人博客">
+<meta property="og:description" content="前言&amp;emsp;&amp;emsp;前端路由是现代SPA应用必备的功能,每个现代前端框架都有对应的实现,例如vue-router、react-router。 我们不想探究vue-router或者react-router们的实现，因为不管是哪种路由无外乎用兼容性更好的hash实现或者是H5 History实现，与框架几个只需要做相应的封装即可。   提前声明: 我们没有对传入的参数进行及时判断而规避错误,也">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-05-08T02:59:28.786Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="前端路由的实现">
+<meta name="twitter:description" content="前言&amp;emsp;&amp;emsp;前端路由是现代SPA应用必备的功能,每个现代前端框架都有对应的实现,例如vue-router、react-router。 我们不想探究vue-router或者react-router们的实现，因为不管是哪种路由无外乎用兼容性更好的hash实现或者是H5 History实现，与框架几个只需要做相应的封装即可。   提前声明: 我们没有对传入的参数进行及时判断而规避错误,也">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.leqikeji.com/blog/2018/05/05/js-实现路由/"/>
+
+
+
+
+
+  <title>前端路由的实现 | Experor、宇的个人博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Experor、宇的个人博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">没有比脚更长的路，走过去，前面是个天！</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/blog/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/blog/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/blog/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/blog/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/blog/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.leqikeji.com/blog/blog/2018/05/05/js-实现路由/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Experor、宇">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="http://leqikeji.cn/myImgs/title.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Experor、宇的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">前端路由的实现</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-05T16:57:51+08:00">
+                2018-05-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/面试题/" itemprop="url" rel="index">
+                    <span itemprop="name">面试题</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/面试题/vue/" itemprop="url" rel="index">
+                    <span itemprop="name">vue</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-comment-o"></i>
+              </span>
+              
+                <a href="/blog/2018/05/05/js-实现路由/#SOHUCS" itemprop="discussionUrl">
+                  <span id="changyan_count_unit" class="post-comments-count hc-comment-count" data-xid="2018/05/05/js-实现路由/" itemprop="commentsCount"></span>
+                </a>
+              
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>&emsp;&emsp;前端路由是现代SPA应用必备的功能,每个现代前端框架都有对应的实现,例如vue-router、react-router。</p>
+<p>我们不想探究vue-router或者react-router们的实现，因为不管是哪种路由无外乎用兼容性更好的hash实现或者是H5 History实现，与框架几个只需要做相应的封装即可。</p>
+<blockquote>
+<p> 提前声明: 我们没有对传入的参数进行及时判断而规避错误,也没有考虑兼容性问题,仅仅对核心方法进行了实现.</p>
+</blockquote>
+<a id="more"></a>
+<hr>
+<h4 id="1-hash路由"><a href="#1-hash路由" class="headerlink" title="1.hash路由"></a>1.hash路由</h4><p>hash路由一个明显的标志是带有<code>#</code>,我们主要是通过监听url中的hash变化来进行路由跳转。</p>
+<p>hash的优势就是兼容性更好,在老版IE中都有运行,问题在于url中一直存在<code>#</code>不够美观,而且hash路由更像是Hack而非标准,相信随着发展更加标准化的History API会逐步蚕食掉hash路由的市场。</p>
+<h5 id="1-1-初始化class"><a href="#1-1-初始化class" class="headerlink" title="1.1 初始化class"></a>1.1 初始化class</h5><p>我们用<code>Class</code>关键字初始化一个路由.<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Routers</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>() &#123;</span><br><span class="line">    <span class="comment">// 以键值对的形式储存路由</span></span><br><span class="line">    <span class="keyword">this</span>.routes = &#123;&#125;;</span><br><span class="line">    <span class="comment">// 当前路由的URL</span></span><br><span class="line">    <span class="keyword">this</span>.currentUrl = <span class="string">''</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h5 id="1-2-实现路由hash储存与执行"><a href="#1-2-实现路由hash储存与执行" class="headerlink" title="1.2 实现路由hash储存与执行"></a>1.2 实现路由hash储存与执行</h5><p>在初始化完毕后我们需要思考两个问题:</p>
+<ol>
+<li>将路由的hash以及对应的callback函数储存</li>
+<li>触发路由hash变化后,执行对应的callback函数</li>
+</ol>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Routers</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>() &#123;</span><br><span class="line">    <span class="keyword">this</span>.routes = &#123;&#125;;</span><br><span class="line">    <span class="keyword">this</span>.currentUrl = <span class="string">''</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 将path路径与对应的callback函数储存</span></span><br><span class="line">  route(path, callback) &#123;</span><br><span class="line">    <span class="keyword">this</span>.routes[path] = callback || <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;&#125;;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 刷新</span></span><br><span class="line">  refresh() &#123;</span><br><span class="line">    <span class="comment">// 获取当前URL中的hash路径</span></span><br><span class="line">    <span class="keyword">this</span>.currentUrl = location.hash.slice(<span class="number">1</span>) || <span class="string">'/'</span>;</span><br><span class="line">    <span class="comment">// 执行当前hash路径的callback函数</span></span><br><span class="line">    <span class="keyword">this</span>.routes[<span class="keyword">this</span>.currentUrl]();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="1-3-监听对应事件"><a href="#1-3-监听对应事件" class="headerlink" title="1.3 监听对应事件"></a>1.3 监听对应事件</h5><p>那么我们只需要在实例化Class的时候监听上面的事件即可.<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Routers</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>() &#123;</span><br><span class="line">    <span class="keyword">this</span>.routes = &#123;&#125;;</span><br><span class="line">    <span class="keyword">this</span>.currentUrl = <span class="string">''</span>;</span><br><span class="line">    <span class="keyword">this</span>.refresh = <span class="keyword">this</span>.refresh.bind(<span class="keyword">this</span>);</span><br><span class="line">    <span class="built_in">window</span>.addEventListener(<span class="string">'load'</span>, <span class="keyword">this</span>.refresh, <span class="literal">false</span>);</span><br><span class="line">    <span class="built_in">window</span>.addEventListener(<span class="string">'hashchange'</span>, <span class="keyword">this</span>.refresh, <span class="literal">false</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  route(path, callback) &#123;</span><br><span class="line">    <span class="keyword">this</span>.routes[path] = callback || <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;&#125;;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  refresh() &#123;</span><br><span class="line">    <span class="keyword">this</span>.currentUrl = location.hash.slice(<span class="number">1</span>) || <span class="string">'/'</span>;</span><br><span class="line">    <span class="keyword">this</span>.routes[<span class="keyword">this</span>.currentUrl]();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="2-增加回退功能"><a href="#2-增加回退功能" class="headerlink" title="2.增加回退功能"></a>2.增加回退功能</h4><p>上一节我们只实现了简单的路由功能,没有我们常用的回退与前进功能,所以我们需要进行改造。</p>
+<h5 id="2-1-实现后退功能"><a href="#2-1-实现后退功能" class="headerlink" title="2.1 实现后退功能"></a>2.1 实现后退功能</h5><p>我们在需要创建一个数组<code>history</code>来储存过往的hash路由例如<code>/blue</code>,并且创建一个指针<code>currentIndex</code>来随着后退和前进功能移动来指向不同的hash路由。<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Routers</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>() &#123;</span><br><span class="line">    <span class="comment">// 储存hash与callback键值对</span></span><br><span class="line">    <span class="keyword">this</span>.routes = &#123;&#125;;</span><br><span class="line">    <span class="comment">// 当前hash</span></span><br><span class="line">    <span class="keyword">this</span>.currentUrl = <span class="string">''</span>;</span><br><span class="line">    <span class="comment">// 记录出现过的hash</span></span><br><span class="line">    <span class="keyword">this</span>.history = [];</span><br><span class="line">    <span class="comment">// 作为指针,默认指向this.history的末尾,根据后退前进指向history中不同的hash</span></span><br><span class="line">    <span class="keyword">this</span>.currentIndex = <span class="keyword">this</span>.history.length - <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">this</span>.refresh = <span class="keyword">this</span>.refresh.bind(<span class="keyword">this</span>);</span><br><span class="line">    <span class="keyword">this</span>.backOff = <span class="keyword">this</span>.backOff.bind(<span class="keyword">this</span>);</span><br><span class="line">    <span class="built_in">window</span>.addEventListener(<span class="string">'load'</span>, <span class="keyword">this</span>.refresh, <span class="literal">false</span>);</span><br><span class="line">    <span class="built_in">window</span>.addEventListener(<span class="string">'hashchange'</span>, <span class="keyword">this</span>.refresh, <span class="literal">false</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  route(path, callback) &#123;</span><br><span class="line">    <span class="keyword">this</span>.routes[path] = callback || <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;&#125;;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  refresh() &#123;</span><br><span class="line">    <span class="keyword">this</span>.currentUrl = location.hash.slice(<span class="number">1</span>) || <span class="string">'/'</span>;</span><br><span class="line">    <span class="comment">// 将当前hash路由推入数组储存</span></span><br><span class="line">    <span class="keyword">this</span>.history.push(<span class="keyword">this</span>.currentUrl);</span><br><span class="line">    <span class="comment">// 指针向前移动</span></span><br><span class="line">    <span class="keyword">this</span>.currentIndex++;</span><br><span class="line">    <span class="keyword">this</span>.routes[<span class="keyword">this</span>.currentUrl]();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 后退功能</span></span><br><span class="line">  backOff() &#123;</span><br><span class="line">    <span class="comment">// 如果指针小于0的话就不存在对应hash路由了,因此锁定指针为0即可</span></span><br><span class="line">    <span class="keyword">this</span>.currentIndex &lt;= <span class="number">0</span></span><br><span class="line">      ? (<span class="keyword">this</span>.currentIndex = <span class="number">0</span>)</span><br><span class="line">      : (<span class="keyword">this</span>.currentIndex = <span class="keyword">this</span>.currentIndex - <span class="number">1</span>);</span><br><span class="line">    <span class="comment">// 随着后退,location.hash也应该随之变化</span></span><br><span class="line">    location.hash = <span class="string">`#<span class="subst">$&#123;<span class="keyword">this</span>.history[<span class="keyword">this</span>.currentIndex]&#125;</span>`</span>;</span><br><span class="line">    <span class="comment">// 执行指针目前指向hash路由对应的callback</span></span><br><span class="line">    <span class="keyword">this</span>.routes[<span class="keyword">this</span>.history[<span class="keyword">this</span>.currentIndex]]();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>我们看起来实现的不错,可是出现了Bug,在后退的时候我们往往需要点击两下。</p>
+<p>问题在于,我们每次在后退都会执行相应的<code>callback</code>,这会触发<code>refresh()</code>执行,因此每次我们后退,<code>history</code>中都会被<code>push</code>新的路由<code>hash</code>,<code>currentIndex</code>也会向前移动,这显然不是我们想要的。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">refresh() &#123;</span><br><span class="line">    <span class="keyword">this</span>.currentUrl = location.hash.slice(<span class="number">1</span>) || <span class="string">'/'</span>;</span><br><span class="line">    <span class="comment">// 将当前hash路由推入数组储存</span></span><br><span class="line">    <span class="keyword">this</span>.history.push(<span class="keyword">this</span>.currentUrl);</span><br><span class="line">    <span class="comment">// 指针向前移动</span></span><br><span class="line">    <span class="keyword">this</span>.currentIndex++;</span><br><span class="line">    <span class="keyword">this</span>.routes[<span class="keyword">this</span>.currentUrl]();</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<h5 id="2-2-完整实现hash-Router"><a href="#2-2-完整实现hash-Router" class="headerlink" title="2.2 完整实现hash Router"></a>2.2 完整实现hash Router</h5><p>我们必须做一个判断,如果是后退的话,我们只需要执行回调函数,不需要添加数组和移动指针。<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Routers</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>() &#123;</span><br><span class="line">    <span class="comment">// 储存hash与callback键值对</span></span><br><span class="line">    <span class="keyword">this</span>.routes = &#123;&#125;;</span><br><span class="line">    <span class="comment">// 当前hash</span></span><br><span class="line">    <span class="keyword">this</span>.currentUrl = <span class="string">''</span>;</span><br><span class="line">    <span class="comment">// 记录出现过的hash</span></span><br><span class="line">    <span class="keyword">this</span>.history = [];</span><br><span class="line">    <span class="comment">// 作为指针,默认指向this.history的末尾,根据后退前进指向history中不同的hash</span></span><br><span class="line">    <span class="keyword">this</span>.currentIndex = <span class="keyword">this</span>.history.length - <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">this</span>.refresh = <span class="keyword">this</span>.refresh.bind(<span class="keyword">this</span>);</span><br><span class="line">    <span class="keyword">this</span>.backOff = <span class="keyword">this</span>.backOff.bind(<span class="keyword">this</span>);</span><br><span class="line">    <span class="comment">// 默认不是后退操作</span></span><br><span class="line">    <span class="keyword">this</span>.isBack = <span class="literal">false</span>;</span><br><span class="line">    <span class="built_in">window</span>.addEventListener(<span class="string">'load'</span>, <span class="keyword">this</span>.refresh, <span class="literal">false</span>);</span><br><span class="line">    <span class="built_in">window</span>.addEventListener(<span class="string">'hashchange'</span>, <span class="keyword">this</span>.refresh, <span class="literal">false</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  route(path, callback) &#123;</span><br><span class="line">    <span class="keyword">this</span>.routes[path] = callback || <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;&#125;;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  refresh() &#123;</span><br><span class="line">    <span class="keyword">this</span>.currentUrl = location.hash.slice(<span class="number">1</span>) || <span class="string">'/'</span>;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">this</span>.isBack) &#123;</span><br><span class="line">      <span class="comment">// 如果不是后退操作,且当前指针小于数组总长度,直接截取指针之前的部分储存下来</span></span><br><span class="line">      <span class="comment">// 此操作来避免当点击后退按钮之后,再进行正常跳转,指针会停留在原地,而数组添加新hash路由</span></span><br><span class="line">      <span class="comment">// 避免再次造成指针的不匹配,我们直接截取指针之前的数组</span></span><br><span class="line">      <span class="comment">// 此操作同时与浏览器自带后退功能的行为保持一致</span></span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">this</span>.currentIndex &lt; <span class="keyword">this</span>.history.length - <span class="number">1</span>)</span><br><span class="line">        <span class="keyword">this</span>.history = <span class="keyword">this</span>.history.slice(<span class="number">0</span>, <span class="keyword">this</span>.currentIndex + <span class="number">1</span>);</span><br><span class="line">      <span class="keyword">this</span>.history.push(<span class="keyword">this</span>.currentUrl);</span><br><span class="line">      <span class="keyword">this</span>.currentIndex++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">this</span>.routes[<span class="keyword">this</span>.currentUrl]();</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'指针:'</span>, <span class="keyword">this</span>.currentIndex, <span class="string">'history:'</span>, <span class="keyword">this</span>.history);</span><br><span class="line">    <span class="keyword">this</span>.isBack = <span class="literal">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 后退功能</span></span><br><span class="line">  backOff() &#123;</span><br><span class="line">    <span class="comment">// 后退操作设置为true</span></span><br><span class="line">    <span class="keyword">this</span>.isBack = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">this</span>.currentIndex &lt;= <span class="number">0</span></span><br><span class="line">      ? (<span class="keyword">this</span>.currentIndex = <span class="number">0</span>)</span><br><span class="line">      : (<span class="keyword">this</span>.currentIndex = <span class="keyword">this</span>.currentIndex - <span class="number">1</span>);</span><br><span class="line">    location.hash = <span class="string">`#<span class="subst">$&#123;<span class="keyword">this</span>.history[<span class="keyword">this</span>.currentIndex]&#125;</span>`</span>;</span><br><span class="line">    <span class="keyword">this</span>.routes[<span class="keyword">this</span>.history[<span class="keyword">this</span>.currentIndex]]();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>前进的部分就不实现了,思路我们已经讲得比较清楚了,可以看出来,hash路由这种方式确实有点繁琐,所以HTML5标准提供了History API供我们使用。</p>
+<h4 id="3-HTML5新路由方案"><a href="#3-HTML5新路由方案" class="headerlink" title="3. HTML5新路由方案"></a>3. HTML5新路由方案</h4><h5 id="3-1-History-API"><a href="#3-1-History-API" class="headerlink" title="3.1 History API"></a>3.1 History API</h5><p>我们只简单看一下history常用的三个API.<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">window</span>.history.back();       <span class="comment">// 后退</span></span><br><span class="line"><span class="built_in">window</span>.history.forward();    <span class="comment">// 前进</span></span><br><span class="line"><span class="built_in">window</span>.history.go(<span class="number">-3</span>);       <span class="comment">// 后退三个页面</span></span><br></pre></td></tr></table></figure></p>
+<p><code>history.pushState</code>用于在浏览历史中添加历史记录,但是并不触发跳转,此方法接受三个参数，依次为：</p>
+<blockquote>
+<p><code>state</code>:一个与指定网址相关的状态对象，<code>popstate</code>事件触发时，该对象会传入回调函数。如果不需要这个对象，此处可以填<code>null</code>。<br><code>title</code>：新页面的标题，但是所有浏览器目前都忽略这个值，因此这里可以填null。<br><code>url</code>：新的网址，必须与当前页面处在同一个域。浏览器的地址栏将显示这个网址。</p>
+</blockquote>
+<p><code>history.replaceState</code>方法的参数与<code>pushState</code>方法一模一样，区别是它修改浏览历史中当前纪录,而非添加记录,同样不触发跳转。</p>
+<p><code>popstate</code>事件,每当同一个文档的浏览历史（即<code>history</code>对象）出现变化时，就会触发<code>popstate</code>事件。</p>
+<p>需要注意的是，仅仅调用<code>pushState</code>方法或<code>replaceState</code>方法 ，并不会触发该事件，只有用户点击浏览器倒退按钮和前进按钮，或者使用 <code>JavaScript</code> 调用<code>back</code>、<code>forward</code>、<code>go</code>方法时才会触发。</p>
+<p>另外，该事件只针对同一个文档，如果浏览历史的切换，导致加载不同的文档，该事件也不会触发。</p>
+<h5 id="3-2-新标准下路由的实现"><a href="#3-2-新标准下路由的实现" class="headerlink" title="3.2 新标准下路由的实现"></a>3.2 新标准下路由的实现</h5><p>上一节我们介绍了新标准的History API,相比于我们在Hash 路由实现的那些操作,很显然新标准让我们的实现更加方便和可读。</p>
+<p>所以一个mini路由实现起来其实很简单<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Routers</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>() &#123;</span><br><span class="line">    <span class="keyword">this</span>.routes = &#123;&#125;;</span><br><span class="line">    <span class="comment">// 在初始化时监听popstate事件</span></span><br><span class="line">    <span class="keyword">this</span>._bindPopState();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 初始化路由</span></span><br><span class="line">  init(path) &#123;</span><br><span class="line">    history.replaceState(&#123;<span class="attr">path</span>: path&#125;, <span class="literal">null</span>, path);</span><br><span class="line">    <span class="keyword">this</span>.routes[path] &amp;&amp; <span class="keyword">this</span>.routes[path]();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 将路径和对应回调函数加入hashMap储存</span></span><br><span class="line">  route(path, callback) &#123;</span><br><span class="line">    <span class="keyword">this</span>.routes[path] = callback || <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;&#125;;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 触发路由对应回调</span></span><br><span class="line">  go(path) &#123;</span><br><span class="line">    history.pushState(&#123;<span class="attr">path</span>: path&#125;, <span class="literal">null</span>, path);</span><br><span class="line">    <span class="keyword">this</span>.routes[path] &amp;&amp; <span class="keyword">this</span>.routes[path]();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 监听popstate事件</span></span><br><span class="line">  _bindPopState() &#123;</span><br><span class="line">    <span class="built_in">window</span>.addEventListener(<span class="string">'popstate'</span>, e =&gt; &#123;</span><br><span class="line">      <span class="keyword">const</span> path = e.state &amp;&amp; e.state.path;</span><br><span class="line">      <span class="keyword">this</span>.routes[path] &amp;&amp; <span class="keyword">this</span>.routes[path]();</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>点击查看H5路由 <a href="https://codepen.io/experor-xxy/pen/RyjXEX" target="_blank" rel="noopener">H5 Router</a></p>
+<p>小结<br>我们大致探究了前端路由的两种实现方法,在没有兼容性要求的情况下显然符合标准的History API实现的路由是更好的选择。</p>
+<p>想更深入了解前端路由实现可以阅读<a href="https://github.com/vuejs/vue-router/blob/dev/src/index.js" target="_blank" rel="noopener">vue-router</a>代码，除去开发模式代码、注释和类型检测代码，核心代码并不多，适合阅读。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>您的支持将鼓励我继续创作！</div>
+  <button style="outline: none;padding: 0 25px;font-size: 16px;color: #fff;background-color: #ea6f5a;border-radius: 20px;" id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赞赏支持</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img style="width: 180px" id="wechat_qr" src="http://www.leqikeji.cn/myImgs/wechat-reward-image.jpg" alt="Experor、宇 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img style="width: 180px" id="alipay_qr" src="http://www.leqikeji.cn/myImgs/alipay-reward-image.jpg" alt="Experor、宇 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/route/" rel="tag"># route</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2018/04/23/vue-react-EventBus/" rel="next" title="Bus进行组件通信,你可以实现下吗?">
+                <i class="fa fa-chevron-left"></i> Bus进行组件通信,你可以实现下吗?
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2018/05/08/vue-proxy_defineproperty优劣/" rel="prev" title="实现双向绑定Proxy比defineproperty优劣">
+                实现双向绑定Proxy比defineproperty优劣 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="SOHUCS"></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="http://leqikeji.cn/myImgs/title.jpg"
+                alt="Experor、宇" />
+            
+              <p class="site-author-name" itemprop="name">Experor、宇</p>
+              <p class="site-description motion-element" itemprop="description">解翔宇的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/blog/archives/">
+              
+                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/blog/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/blog/tags/index.html">
+                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/experor-xxy" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://weibo.com/u/3182373863/home" target="_blank" title="微博">
+                      
+                        <i class="fa fa-fw fa-globe"></i>微博</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:stevenDxxy@163.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-hash路由"><span class="nav-number">2.</span> <span class="nav-text">1.hash路由</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-1-初始化class"><span class="nav-number">2.1.</span> <span class="nav-text">1.1 初始化class</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-2-实现路由hash储存与执行"><span class="nav-number">2.2.</span> <span class="nav-text">1.2 实现路由hash储存与执行</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3-监听对应事件"><span class="nav-number">2.3.</span> <span class="nav-text">1.3 监听对应事件</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-增加回退功能"><span class="nav-number">3.</span> <span class="nav-text">2.增加回退功能</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2-1-实现后退功能"><span class="nav-number">3.1.</span> <span class="nav-text">2.1 实现后退功能</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-2-完整实现hash-Router"><span class="nav-number">3.2.</span> <span class="nav-text">2.2 完整实现hash Router</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-HTML5新路由方案"><span class="nav-number">4.</span> <span class="nav-text">3. HTML5新路由方案</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#3-1-History-API"><span class="nav-number">4.1.</span> <span class="nav-text">3.1 History API</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-2-新标准下路由的实现"><span class="nav-number">4.2.</span> <span class="nav-text">3.2 新标准下路由的实现</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Experor、宇</span>
+
+  
+  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAATCAYAAACdkl3yAAAEX0lEQVR42m2TWWyUBRSFv3+dfzprpxstgVIKpQitFgqYAhIRNJGwSPRBUHnAuAXjEknUUI34osYYHyCE6IOIIIoGicEm7Js1haJUbCltoYWWtrSdmc60s/y7L6QR9b6dh/vdk5xzZf5nLp/dW5ETVNf4uPIYjjBdVHRXlLXrI8mpp32h4l+mVa5q+feO/E8xHj87OTHQXK+PtT8jiaJPN/2oWhm6mQZ7oNznyz5qJjrre698vSNSXPqRL39Z7D+gxNDxmmTP9wd0x6oQ3BKkhm60c9cRBRNZdDBFBXPxTKTFVV7o3poaal6TiB5/OpS34o8JUG/Pscpo1+GDgpQtV/uyaNt3kdMygFMsodeGUD0CwcYk7qHzjM4rw3h/A0Jl0azEzdZd3Z0n15fNXN4vA9jJy9tse6Dc32/if/0c2lACUZGIBRViK8NIhQUUdbSSMwSFbX0ktuwm9cUWxEmpRYLR9wqwTR6Pnq4ead/7lKZF8Hx8FCk5xp23ZhA6HiXUFsM+F8P2gdplk1yaR2ZJAZFP2jA+2If05WYMs3tLMtq4VzbHLq7zF6ZUo0nA39wLGnguxnCHLOxgmMgPSVw1hRNWEfoyKBdiyK5A7oUuRjp6CdQUhaxU5wbZzCQWGYaGfPEWkmsjZCD/2DDpYo1kfS3eXV0QsdA3FeCv7yPYcBsACVCuDmJV52Cke+fLY/FMGWKQnGgS4W6CLiAnDdTvWvF0xHElgAxiPHNPb8SW2xjrHySbiBbKak7AowTiyJHAPQWz76tEnD4Hs9RBEGxcWcEZaELouIV795iSp2EoEqI8JSjH78QGS/z6dGumH+eu5YziIfbOk6jz5yE5Mkgyrscke7gQ5YWdSIAFZB+IIGWvYaWCN2VPqOw0xp91zjyZ9Ku1eH0hzLAPuTyOMH4MQVBxBQM360Gq8WC+txZbd0nHU4hzfWANEiisOSqrvhkHx2KXtub4vYr99gr0lIjs6GhjBiTSSK6FI1jYqoHkzcPeWI2j+TFtCyPWjZ7MHcsvn3VILqtafbn1VP1+qbF1k1Q7gtgcRfn0V7S4iRtRsOqKEfqTeK8lEEd1rFIf+pt1OGVB3H4X5f4lu8MlD9+QASYVLv3QennfarXIiVifr8XdUYK6/zz28nyclTUIroSz8zx2+zDmG3NxXRXvayegtPSab/mLn038mhKzRtThhJttj6KsO4D9Uh3jj09B7hhD2t6ELcnoVUU4CyNoP/chHriBfnsEn6d4IFCyZGACZF5qmeOJRvNkwEolUb79DSc/BNWTEBeEIJVFONuJp2cUIW2QHU7gBdzu7prMmZ+C3mXrkjLAYN7UvvFly/ZUnDmzSZvsp+f5J8htuo7rWmgzwjCcQfBmGV1YgT47xLR39xF3FKNrwfxvYo2/2xOO5jy78VbbkYbNR0aiVz1DQ1X+dvGUffLqc4FEsqCn4WZ/OGuEc/uH88Znz/6rNT33RL8n8Ii0dtVXD+3Z8yMNRwH4G+Nk9O/mybiiAAAAAElFTkSuQmCC" style="display: inline-block">
+  <a href="https://beian.miit.gov.cn/"  style="color:#f72b07" target="_blank">京ICP备18018172号</a>
+</div>
+
+
+  <div class="powered-by">Powered by xxy</div>
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/blog/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+  
+    <script type="text/javascript">
+    (function(){
+      var appid = 'cytAYqgWY';
+      var conf = 'fc1e2fb4761474d3d93c28cde463f12f';
+      var width = window.innerWidth || document.documentElement.clientWidth;
+      if (width < 960) {
+      window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>'); } else { var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("https://changyan.sohu.com/upload/changyan.js",function(){
+        window.changyan.api.config({appid:appid,conf:conf})});
+      }
+    })();
+    </script>
+    <script type="text/javascript" src="https://assets.changyan.sohu.com/upload/plugins/plugins.count.js"></script>
+  
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

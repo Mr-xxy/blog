@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/blog/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/blog/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Event Bus," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言本文标题的题目是由其他问题延伸而来,面试中面试官的常用套路,揪住一个问题一直深挖,在产生这个问题之前一定是这个问题.  React/Vue不同组件之间是怎么通信的?">
+<meta name="keywords" content="Event Bus">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Bus进行组件通信,你可以实现下吗?">
+<meta property="og:url" content="http://www.leqikeji.com/blog/2018/04/23/vue-react-EventBus/index.html">
+<meta property="og:site_name" content="Experor、宇的个人博客">
+<meta property="og:description" content="前言本文标题的题目是由其他问题延伸而来,面试中面试官的常用套路,揪住一个问题一直深挖,在产生这个问题之前一定是这个问题.  React/Vue不同组件之间是怎么通信的?">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-05-08T02:59:03.159Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Bus进行组件通信,你可以实现下吗?">
+<meta name="twitter:description" content="前言本文标题的题目是由其他问题延伸而来,面试中面试官的常用套路,揪住一个问题一直深挖,在产生这个问题之前一定是这个问题.  React/Vue不同组件之间是怎么通信的?">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.leqikeji.com/blog/2018/04/23/vue-react-EventBus/"/>
+
+
+
+
+
+  <title>Bus进行组件通信,你可以实现下吗? | Experor、宇的个人博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Experor、宇的个人博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">没有比脚更长的路，走过去，前面是个天！</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/blog/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/blog/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/blog/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/blog/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/blog/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.leqikeji.com/blog/blog/2018/04/23/vue-react-EventBus/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Experor、宇">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="http://leqikeji.cn/myImgs/title.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Experor、宇的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Bus进行组件通信,你可以实现下吗?</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-23T16:19:11+08:00">
+                2018-04-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/面试题/" itemprop="url" rel="index">
+                    <span itemprop="name">面试题</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/面试题/vue/" itemprop="url" rel="index">
+                    <span itemprop="name">vue</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/面试题/vue/react/" itemprop="url" rel="index">
+                    <span itemprop="name">react</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-comment-o"></i>
+              </span>
+              
+                <a href="/blog/2018/04/23/vue-react-EventBus/#SOHUCS" itemprop="discussionUrl">
+                  <span id="changyan_count_unit" class="post-comments-count hc-comment-count" data-xid="2018/04/23/vue-react-EventBus/" itemprop="commentsCount"></span>
+                </a>
+              
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>本文标题的题目是由其他问题延伸而来,面试中面试官的常用套路,揪住一个问题一直深挖,在产生这个问题之前一定是这个问题.</p>
+<blockquote>
+<p>React/Vue不同组件之间是怎么通信的?</p>
+</blockquote>
+<a id="more"></a>
+<p><strong>Vue</strong></p>
+<ol>
+<li>父子组件用<code>Props</code>通信</li>
+<li>非父子组件用<code>Event Bus</code>通信</li>
+<li>如果项目够复杂,可能需要<code>Vuex</code>等全局状态管理库通信</li>
+<li><code>$dispatch</code>(已经废除)和<code>$broadcast</code>(已经废除)</li>
+</ol>
+<p><strong>React</strong></p>
+<ol>
+<li>父子组件,父-&gt;子直接用<code>Props</code>,子-&gt;父用<code>callback</code>回调</li>
+<li>非父子组件,用发布订阅模式的<code>Event</code>模块</li>
+<li>项目复杂的话用<code>Redux</code>、<code>Mobx</code>等全局状态管理管库</li>
+<li>用新的<a href="https://juejin.im/post/5a7b41605188257a6310fbec" target="_blank" rel="noopener">Context Api</a></li>
+</ol>
+<p>我们大体上都会有以上回答,接下来很可能会问到如何实现<code>Event(Bus)</code>,因为这个东西太重要了,几乎所有的模块通信都是基于类似的模式,包括安卓开发中的<code>Event Bus</code>,Node.js中的<code>Event</code>模块(Node中几乎所有的模块都依赖于<code>Event</code>,包括不限于<code>http</code>、<code>stream</code>、<code>buffer</code>、<code>fs</code>等).</p>
+<p>我们仿照<code>Node</code>中<a href="http://nodejs.cn/api/events.html" target="_blank" rel="noopener">Event API</a>实现一个简单的<code>Event</code>库,他是发布订阅模式的典型应用.</p>
+<blockquote>
+<p>提前声明: 我们没有对传入的参数进行及时判断而规避错误,仅仅对核心方法进行了实现.</p>
+</blockquote>
+<h4 id="1-基本构造"><a href="#1-基本构造" class="headerlink" title="1.基本构造"></a>1.基本构造</h4><h5 id="1-1初始化class"><a href="#1-1初始化class" class="headerlink" title="1.1初始化class"></a>1.1初始化class</h5><p>我们利用ES6的<code>class</code>关键字对<code>Event</code>进行初始化,包括<code>Event</code>的事件清单和监听者上限.</p>
+<p>我们选择了<code>Map</code>作为储存事件的结构,因为作为键值对的储存方式<code>Map</code>比一般对象更加适合,我们操作起来也更加简洁,可以先看一下<a href="http://es6.ruanyifeng.com/#docs/set-map#Map" target="_blank" rel="noopener">Map的基本用法与特点</a>.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">EventEmeitter</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>() &#123;</span><br><span class="line">    <span class="keyword">this</span>._events = <span class="keyword">this</span>._events || <span class="keyword">new</span> <span class="built_in">Map</span>(); <span class="comment">// 储存事件/回调键值对</span></span><br><span class="line">    <span class="keyword">this</span>._maxListeners = <span class="keyword">this</span>._maxListeners || <span class="number">10</span>; <span class="comment">// 设立监听上限</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="1-2-监听与触发"><a href="#1-2-监听与触发" class="headerlink" title="1.2 监听与触发"></a>1.2 监听与触发</h5><p>触发监听函数我们可以用<code>apply</code>与<code>call</code>两种方法,在少数参数时<code>call</code>的性能更好,多个参数时<code>apply</code>性能更好,当年<code>Node</code>的<code>Event</code>模块就在三个参数以下用<code>call</code>否则用<code>apply</code>.</p>
+<p>当然当Node全面拥抱ES6+之后,相应的<code>call/apply</code>操作用<code>Reflect</code>新关键字重写了,但是我们不想写的那么复杂,就做了一个简化版.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 触发名为type的事件</span></span><br><span class="line">EventEmeitter.prototype.emit = <span class="function"><span class="keyword">function</span>(<span class="params">type, ...args</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> handler;</span><br><span class="line">  <span class="comment">// 从储存事件键值对的this._events中获取对应事件回调函数</span></span><br><span class="line">  handler = <span class="keyword">this</span>._events.get(type);</span><br><span class="line">  <span class="keyword">if</span> (args.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    handler.apply(<span class="keyword">this</span>, args);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    handler.call(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 监听名为type的事件</span></span><br><span class="line">EventEmeitter.prototype.addListener = <span class="function"><span class="keyword">function</span>(<span class="params">type, fn</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 将type事件以及对应的fn函数放入this._events中储存</span></span><br><span class="line">  <span class="keyword">if</span> (!<span class="keyword">this</span>._events.get(type)) &#123;</span><br><span class="line">    <span class="keyword">this</span>._events.set(type, fn);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>我们实现了触发事件的<code>emit</code>方法和监听事件的<code>addListener</code>方法,至此我们就可以进行简单的实践了.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 实例化</span></span><br><span class="line"><span class="keyword">const</span> emitter = <span class="keyword">new</span> EventEmeitter();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 监听一个名为arson的事件对应一个回调函数</span></span><br><span class="line">emitter.addListener(<span class="string">'arson'</span>, man =&gt; &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`expel <span class="subst">$&#123;man&#125;</span>`</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 我们触发arson事件,发现回调成功执行</span></span><br><span class="line">emitter.emit(<span class="string">'arson'</span>, <span class="string">'low-end'</span>); <span class="comment">// expel low-end</span></span><br></pre></td></tr></table></figure>
+<p>似乎不错,我们实现了基本的触发/监听,但是如果有多个监听者呢?<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 重复监听同一个事件名</span></span><br><span class="line">emitter.addListener(<span class="string">'arson'</span>, man =&gt; &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`expel <span class="subst">$&#123;man&#125;</span>`</span>);</span><br><span class="line">&#125;);</span><br><span class="line">emitter.addListener(<span class="string">'arson'</span>, man =&gt; &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`save <span class="subst">$&#123;man&#125;</span>`</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">emitter.emit(<span class="string">'arson'</span>, <span class="string">'low-end'</span>); <span class="comment">// expel low-end</span></span><br></pre></td></tr></table></figure></p>
+<p>是的,只会触发第一个,因此我们需要进行改造.</p>
+<hr>
+<h4 id="2-升级改造"><a href="#2-升级改造" class="headerlink" title="2.升级改造"></a>2.升级改造</h4><h5 id="2-1-监听-触发器升级"><a href="#2-1-监听-触发器升级" class="headerlink" title="2.1 监听/触发器升级"></a>2.1 监听/触发器升级</h5><p>我们的<code>addListener</code>实现方法还不够健全,在绑定第一个监听者之后,我们就无法对后续监听者进行绑定了,因此我们需要将后续监听者与第一个监听者函数放到一个数组里.<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 触发名为type的事件</span></span><br><span class="line">EventEmeitter.prototype.emit = <span class="function"><span class="keyword">function</span>(<span class="params">type, ...args</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> handler;</span><br><span class="line">  handler = <span class="keyword">this</span>._events.get(type);</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">Array</span>.isArray(handler)) &#123;</span><br><span class="line">    <span class="comment">// 如果是一个数组说明有多个监听者,需要依次此触发里面的函数</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; handler.length; i++) &#123;</span><br><span class="line">      <span class="keyword">if</span> (args.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        handler[i].apply(<span class="keyword">this</span>, args);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        handler[i].call(<span class="keyword">this</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123; <span class="comment">// 单个函数的情况我们直接触发即可</span></span><br><span class="line">    <span class="keyword">if</span> (args.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">      handler.apply(<span class="keyword">this</span>, args);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      handler.call(<span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 监听名为type的事件</span></span><br><span class="line">EventEmeitter.prototype.addListener = <span class="function"><span class="keyword">function</span>(<span class="params">type, fn</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> handler = <span class="keyword">this</span>._events.get(type); <span class="comment">// 获取对应事件名称的函数清单</span></span><br><span class="line">  <span class="keyword">if</span> (!handler) &#123;</span><br><span class="line">    <span class="keyword">this</span>._events.set(type, fn);</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (handler &amp;&amp; <span class="keyword">typeof</span> handler === <span class="string">'function'</span>) &#123;</span><br><span class="line">    <span class="comment">// 如果handler是函数说明只有一个监听者</span></span><br><span class="line">    <span class="keyword">this</span>._events.set(type, [handler, fn]); <span class="comment">// 多个监听者我们需要用数组储存</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    handler.push(fn); <span class="comment">// 已经有多个监听者,那么直接往数组里push函数即可</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>是的,从此以后可以愉快的触发多个监听者的函数了.<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 监听同一个事件名</span></span><br><span class="line">emitter.addListener(<span class="string">'arson'</span>, man =&gt; &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`expel <span class="subst">$&#123;man&#125;</span>`</span>);</span><br><span class="line">&#125;);</span><br><span class="line">emitter.addListener(<span class="string">'arson'</span>, man =&gt; &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`save <span class="subst">$&#123;man&#125;</span>`</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">emitter.addListener(<span class="string">'arson'</span>, man =&gt; &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`kill <span class="subst">$&#123;man&#125;</span>`</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 触发事件</span></span><br><span class="line">emitter.emit(<span class="string">'arson'</span>, <span class="string">'low-end'</span>);</span><br><span class="line"><span class="comment">//expel low-end</span></span><br><span class="line"><span class="comment">//save low-end</span></span><br><span class="line"><span class="comment">//kill low-end</span></span><br></pre></td></tr></table></figure></p>
+<h5 id="2-2-移除监听"><a href="#2-2-移除监听" class="headerlink" title="2.2 移除监听"></a>2.2 移除监听</h5><p>我们会用<code>removeListener</code>函数移除监听函数,但是匿名函数是无法移除的.<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">EventEmeitter.prototype.removeListener = <span class="function"><span class="keyword">function</span>(<span class="params">type, fn</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> handler = <span class="keyword">this</span>._events.get(type); <span class="comment">// 获取对应事件名称的函数清单</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 如果是函数,说明只被监听了一次</span></span><br><span class="line">  <span class="keyword">if</span> (handler &amp;&amp; <span class="keyword">typeof</span> handler === <span class="string">'function'</span>) &#123;</span><br><span class="line">    <span class="keyword">this</span>._events.delete(type, fn);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> postion;</span><br><span class="line">    <span class="comment">// 如果handler是数组,说明被监听多次要找到对应的函数</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; handler.length; i++) &#123;</span><br><span class="line">      <span class="keyword">if</span> (handler[i] === fn) &#123;</span><br><span class="line">        postion = i;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        postion = <span class="number">-1</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果找到匹配的函数,从数组中清除</span></span><br><span class="line">    <span class="keyword">if</span> (postion !== <span class="number">-1</span>) &#123;</span><br><span class="line">      <span class="comment">// 找到数组对应的位置,直接清除此回调</span></span><br><span class="line">      handler.splice(postion, <span class="number">1</span>);</span><br><span class="line">      <span class="comment">// 如果清除后只有一个函数,那么取消数组,以函数形式保存</span></span><br><span class="line">      <span class="keyword">if</span> (handler.length === <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">this</span>._events.set(type, handler[<span class="number">0</span>]);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<hr>
+<h4 id="3-发现问题"><a href="#3-发现问题" class="headerlink" title="3.发现问题"></a>3.发现问题</h4><p>我们已经基本完成了<code>Event</code>最重要的几个方法,也完成了升级改造,可以说一个<code>Event</code>的骨架是被我们开发出来了,但是它仍然有不足和需要补充的地方.</p>
+<blockquote>
+<p>1.我们没有对参数进行充分的判断,没有完善的报错机制.<br>2.模拟不够充分: 除了<code>removeAllListeners</code>这些方法没有实现以外,例如监听时间后会触发<code>newListener</code>事件,我们也没有实现,另外最开始的监听者上限我们也没有利用到.</p>
+</blockquote>
+<p>当然,这在面试中现场写一个<code>Event</code>已经是很够意思了,主要是体现出来对发布-订阅模式的理解,以及针对多个监听状况下的处理,不可能现场撸几百行写一个完整<code>Event</code>.</p>
+<p>索性<a href="https://github.com/Gozala/events/blob/master/events.js" target="_blank" rel="noopener">Event</a>库帮我们实现了完整的特性,整个代码量有300多行,很适合阅读,你可以花十分钟的时间通读一下,见识一下完整的Event实现.</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>您的支持将鼓励我继续创作！</div>
+  <button style="outline: none;padding: 0 25px;font-size: 16px;color: #fff;background-color: #ea6f5a;border-radius: 20px;" id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赞赏支持</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img style="width: 180px" id="wechat_qr" src="http://www.leqikeji.cn/myImgs/wechat-reward-image.jpg" alt="Experor、宇 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img style="width: 180px" id="alipay_qr" src="http://www.leqikeji.cn/myImgs/alipay-reward-image.jpg" alt="Experor、宇 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/Event-Bus/" rel="tag"># Event Bus</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2018/04/07/js-clone/" rel="next" title="请你实现一个深克隆">
+                <i class="fa fa-chevron-left"></i> 请你实现一个深克隆
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2018/05/05/js-实现路由/" rel="prev" title="前端路由的实现">
+                前端路由的实现 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="SOHUCS"></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="http://leqikeji.cn/myImgs/title.jpg"
+                alt="Experor、宇" />
+            
+              <p class="site-author-name" itemprop="name">Experor、宇</p>
+              <p class="site-description motion-element" itemprop="description">解翔宇的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/blog/archives/">
+              
+                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/blog/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/blog/tags/index.html">
+                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/experor-xxy" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://weibo.com/u/3182373863/home" target="_blank" title="微博">
+                      
+                        <i class="fa fa-fw fa-globe"></i>微博</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:stevenDxxy@163.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-基本构造"><span class="nav-number">2.</span> <span class="nav-text">1.基本构造</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-1初始化class"><span class="nav-number">2.1.</span> <span class="nav-text">1.1初始化class</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-2-监听与触发"><span class="nav-number">2.2.</span> <span class="nav-text">1.2 监听与触发</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-升级改造"><span class="nav-number">3.</span> <span class="nav-text">2.升级改造</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2-1-监听-触发器升级"><span class="nav-number">3.1.</span> <span class="nav-text">2.1 监听/触发器升级</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-2-移除监听"><span class="nav-number">3.2.</span> <span class="nav-text">2.2 移除监听</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-发现问题"><span class="nav-number">4.</span> <span class="nav-text">3.发现问题</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Experor、宇</span>
+
+  
+  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAATCAYAAACdkl3yAAAEX0lEQVR42m2TWWyUBRSFv3+dfzprpxstgVIKpQitFgqYAhIRNJGwSPRBUHnAuAXjEknUUI34osYYHyCE6IOIIIoGicEm7Js1haJUbCltoYWWtrSdmc60s/y7L6QR9b6dh/vdk5xzZf5nLp/dW5ETVNf4uPIYjjBdVHRXlLXrI8mpp32h4l+mVa5q+feO/E8xHj87OTHQXK+PtT8jiaJPN/2oWhm6mQZ7oNznyz5qJjrre698vSNSXPqRL39Z7D+gxNDxmmTP9wd0x6oQ3BKkhm60c9cRBRNZdDBFBXPxTKTFVV7o3poaal6TiB5/OpS34o8JUG/Pscpo1+GDgpQtV/uyaNt3kdMygFMsodeGUD0CwcYk7qHzjM4rw3h/A0Jl0azEzdZd3Z0n15fNXN4vA9jJy9tse6Dc32/if/0c2lACUZGIBRViK8NIhQUUdbSSMwSFbX0ktuwm9cUWxEmpRYLR9wqwTR6Pnq4ead/7lKZF8Hx8FCk5xp23ZhA6HiXUFsM+F8P2gdplk1yaR2ZJAZFP2jA+2If05WYMs3tLMtq4VzbHLq7zF6ZUo0nA39wLGnguxnCHLOxgmMgPSVw1hRNWEfoyKBdiyK5A7oUuRjp6CdQUhaxU5wbZzCQWGYaGfPEWkmsjZCD/2DDpYo1kfS3eXV0QsdA3FeCv7yPYcBsACVCuDmJV52Cke+fLY/FMGWKQnGgS4W6CLiAnDdTvWvF0xHElgAxiPHNPb8SW2xjrHySbiBbKak7AowTiyJHAPQWz76tEnD4Hs9RBEGxcWcEZaELouIV795iSp2EoEqI8JSjH78QGS/z6dGumH+eu5YziIfbOk6jz5yE5Mkgyrscke7gQ5YWdSIAFZB+IIGWvYaWCN2VPqOw0xp91zjyZ9Ku1eH0hzLAPuTyOMH4MQVBxBQM360Gq8WC+txZbd0nHU4hzfWANEiisOSqrvhkHx2KXtub4vYr99gr0lIjs6GhjBiTSSK6FI1jYqoHkzcPeWI2j+TFtCyPWjZ7MHcsvn3VILqtafbn1VP1+qbF1k1Q7gtgcRfn0V7S4iRtRsOqKEfqTeK8lEEd1rFIf+pt1OGVB3H4X5f4lu8MlD9+QASYVLv3QennfarXIiVifr8XdUYK6/zz28nyclTUIroSz8zx2+zDmG3NxXRXvayegtPSab/mLn038mhKzRtThhJttj6KsO4D9Uh3jj09B7hhD2t6ELcnoVUU4CyNoP/chHriBfnsEn6d4IFCyZGACZF5qmeOJRvNkwEolUb79DSc/BNWTEBeEIJVFONuJp2cUIW2QHU7gBdzu7prMmZ+C3mXrkjLAYN7UvvFly/ZUnDmzSZvsp+f5J8htuo7rWmgzwjCcQfBmGV1YgT47xLR39xF3FKNrwfxvYo2/2xOO5jy78VbbkYbNR0aiVz1DQ1X+dvGUffLqc4FEsqCn4WZ/OGuEc/uH88Znz/6rNT33RL8n8Ii0dtVXD+3Z8yMNRwH4G+Nk9O/mybiiAAAAAElFTkSuQmCC" style="display: inline-block">
+  <a href="https://beian.miit.gov.cn/"  style="color:#f72b07" target="_blank">京ICP备18018172号</a>
+</div>
+
+
+  <div class="powered-by">Powered by xxy</div>
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/blog/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+  
+    <script type="text/javascript">
+    (function(){
+      var appid = 'cytAYqgWY';
+      var conf = 'fc1e2fb4761474d3d93c28cde463f12f';
+      var width = window.innerWidth || document.documentElement.clientWidth;
+      if (width < 960) {
+      window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>'); } else { var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("https://changyan.sohu.com/upload/changyan.js",function(){
+        window.changyan.api.config({appid:appid,conf:conf})});
+      }
+    })();
+    </script>
+    <script type="text/javascript" src="https://assets.changyan.sohu.com/upload/plugins/plugins.count.js"></script>
+  
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

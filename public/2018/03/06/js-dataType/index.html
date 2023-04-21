@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/blog/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/blog/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="javascript数据类型," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言　　众所周知,JavaScript是动态弱类型的多范式编程语言,由于设计时的粗糙(当时设计js的初衷就是在浏览器中处理表单这种简单事件)导致JavaScript在许多方面表现出了这样或者那样的问题,其中’类型’便是语法层面最常见的’埋坑’重灾区. 　　  JavaScript原始类型:Undefined、Null、Boolean、Number、String、Symbol   JavaScrip">
+<meta name="keywords" content="javascript数据类型">
+<meta property="og:type" content="article">
+<meta property="og:title" content="你可能真的不懂JavaScript中最基础类型">
+<meta property="og:url" content="http://www.leqikeji.com/blog/2018/03/06/js-dataType/index.html">
+<meta property="og:site_name" content="Experor、宇的个人博客">
+<meta property="og:description" content="前言　　众所周知,JavaScript是动态弱类型的多范式编程语言,由于设计时的粗糙(当时设计js的初衷就是在浏览器中处理表单这种简单事件)导致JavaScript在许多方面表现出了这样或者那样的问题,其中’类型’便是语法层面最常见的’埋坑’重灾区. 　　  JavaScript原始类型:Undefined、Null、Boolean、Number、String、Symbol   JavaScrip">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://camo.githubusercontent.com/d1293377721630c02f55d4201bf005eb6582de9b/687474703a2f2f6f6d7262677071796c2e626b742e636c6f7564646e2e636f6d2f31382d322d32302f33343330343934382e6a7067">
+<meta property="og:image" content="https://camo.githubusercontent.com/c6bc1eea15735abae88cf5f4565c1a64072952f7/687474703a2f2f6f6d7262677071796c2e626b742e636c6f7564646e2e636f6d2f31372d392d31332f31353531373233312e6a7067">
+<meta property="og:updated_time" content="2018-05-08T02:59:28.789Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="你可能真的不懂JavaScript中最基础类型">
+<meta name="twitter:description" content="前言　　众所周知,JavaScript是动态弱类型的多范式编程语言,由于设计时的粗糙(当时设计js的初衷就是在浏览器中处理表单这种简单事件)导致JavaScript在许多方面表现出了这样或者那样的问题,其中’类型’便是语法层面最常见的’埋坑’重灾区. 　　  JavaScript原始类型:Undefined、Null、Boolean、Number、String、Symbol   JavaScrip">
+<meta name="twitter:image" content="https://camo.githubusercontent.com/d1293377721630c02f55d4201bf005eb6582de9b/687474703a2f2f6f6d7262677071796c2e626b742e636c6f7564646e2e636f6d2f31382d322d32302f33343330343934382e6a7067">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.leqikeji.com/blog/2018/03/06/js-dataType/"/>
+
+
+
+
+
+  <title>你可能真的不懂JavaScript中最基础类型 | Experor、宇的个人博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Experor、宇的个人博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">没有比脚更长的路，走过去，前面是个天！</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/blog/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/blog/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/blog/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/blog/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/blog/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.leqikeji.com/blog/blog/2018/03/06/js-dataType/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Experor、宇">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="http://leqikeji.cn/myImgs/title.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Experor、宇的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">你可能真的不懂JavaScript中最基础类型</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-06T14:11:42+08:00">
+                2018-03-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/面试题/" itemprop="url" rel="index">
+                    <span itemprop="name">面试题</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-comment-o"></i>
+              </span>
+              
+                <a href="/blog/2018/03/06/js-dataType/#SOHUCS" itemprop="discussionUrl">
+                  <span id="changyan_count_unit" class="post-comments-count hc-comment-count" data-xid="2018/03/06/js-dataType/" itemprop="commentsCount"></span>
+                </a>
+              
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>　　众所周知,JavaScript是动态弱类型的多范式编程语言,由于设计时的粗糙(当时设计js的初衷就是在浏览器中处理表单这种简单事件)导致JavaScript在许多方面表现出了这样或者那样的问题,其中’类型’便是语法层面最常见的’埋坑’重灾区. 　　</p>
+<blockquote>
+<p>JavaScript原始类型:Undefined、Null、Boolean、Number、String、Symbol</p>
+</blockquote>
+<blockquote>
+<p>JavaScript引用类型:Object</p>
+</blockquote>
+<a id="more"></a>
+<hr>
+<h4 id="1-原始类型与引用类型"><a href="#1-原始类型与引用类型" class="headerlink" title="1.原始类型与引用类型"></a>1.原始类型与引用类型</h4><h5 id="1-1"><a href="#1-1" class="headerlink" title="1.1"></a>1.1</h5><p>&emsp;&emsp;<code>原始类型</code>又被称为<code>引用类型</code>，原始类型保存的变量和值直接保存在<code>栈内存(Stack)</code>中,且空间相互独立,通过值来访问,说到这里肯定一同懵逼,不过我们可以通过一个例子来解释.<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> person = <span class="string">'Messi'</span>;</span><br><span class="line"><span class="keyword">var</span> person1 = person;</span><br></pre></td></tr></table></figure></p>
+<p>上述代码在栈内存的示意图是这样的,可以看到,虽然<code>person</code>赋值给了<code>person1</code>.但是两个变量并没有指向同一个值,而是<code>person1</code>自己单独建立一个内存空间,虽然两个变量的值相等,但却是相互独立的.</p>
+<table><tr><td>person</td><td>Messi</td></tr><tr><td>person1</td><td>Messi</td></tr></table>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> person = <span class="string">'Messi'</span>;</span><br><span class="line"><span class="keyword">var</span> person1 = person;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> person = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(person); <span class="comment">//1</span></span><br><span class="line"><span class="built_in">console</span>.log(person1); <span class="comment">//'Messi'</span></span><br></pre></td></tr></table></figure>
+<p>上述代码示意图是这样的,<code>person</code>的值虽然改变,但是由于<code>person1</code>的值是独立储存的,因此不受影响.</p>
+<p>值得一提的是,虽然原始类型的值是储存在相对独立空间,但是它们之间的比较是按值比较的.<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> person = <span class="string">'Messi'</span>;</span><br><span class="line"><span class="keyword">var</span> person1 = <span class="string">'Messi'</span>;</span><br><span class="line"><span class="built_in">console</span>.log(person === person1); <span class="comment">//true</span></span><br></pre></td></tr></table></figure></p>
+<h5 id="1-2引用类型"><a href="#1-2引用类型" class="headerlink" title="1.2引用类型"></a>1.2引用类型</h5><p>剩下的就是引用类型了,即Object 类型,再往下细分，还可以分为：Object 类型、Array 类型、Date 类型、Function 类型 等。</p>
+<p>与原始类型不同的是,引用类型的内容是保存在<strong>堆内存</strong>中,而<strong>栈内存(Heap)</strong>中会有一个<strong>堆内存地址</strong>,通过这个地址变量被指向堆内存中<code>Object</code>真正的值,因此引用类型是按照引用访问的.</p>
+<p>下例能很清楚的说明引用类型的特质.<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = &#123;<span class="attr">name</span>:<span class="string">"percy"</span>&#125;;</span><br><span class="line"><span class="keyword">var</span> b;</span><br><span class="line">b = a;</span><br><span class="line">a.name = <span class="string">"zyj"</span>;</span><br><span class="line"><span class="built_in">console</span>.log(b.name);    <span class="comment">// zyj</span></span><br><span class="line">b.age = <span class="number">22</span>;</span><br><span class="line"><span class="built_in">console</span>.log(a.age);     <span class="comment">// 22</span></span><br><span class="line"><span class="keyword">var</span> c = &#123;</span><br><span class="line">  name: <span class="string">"zyj"</span>,</span><br><span class="line">  age: <span class="number">22</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="built_in">console</span>.log(a === c); <span class="comment">//false</span></span><br></pre></td></tr></table></figure></p>
+<p>我们可以逐行分析:<br>1.<code>b = a</code>,如果是原始类型的话,<code>b</code>会在栈内自己独自创建一个内存空间保存值,但是引用类型只是<code>b</code>的产生一个对内存地址,指向堆内存中的<code>Object</code>.<br>2.<code>a.name = &quot;zyj&quot;</code>,这个操作属于改变了变量的值,在原始类型中会重新建立新的内存空间(可以看上一节的示意图),而引用类型只需要自己在堆内存中更新自己的属性即可.<br>3.最后创建了一个新的对象<code>c</code>,看似跟<code>b</code> <code>a</code>一样,但是在堆内存中确实两个相互独立的<code>Object</code>,引用类型是按照<strong>引用比较</strong>,由于<code>a</code>  <code>c</code>引用的是不同的<code>Object</code>所以得到的结果是<code>fasle</code>.</p>
+<p><img src="https://camo.githubusercontent.com/d1293377721630c02f55d4201bf005eb6582de9b/687474703a2f2f6f6d7262677071796c2e626b742e636c6f7564646e2e636f6d2f31382d322d32302f33343330343934382e6a7067" alt="指向问题"></p>
+<hr>
+<h4 id="2-类型中的坑"><a href="#2-类型中的坑" class="headerlink" title="2. 类型中的坑"></a>2. 类型中的坑</h4><h5 id="2-1"><a href="#2-1" class="headerlink" title="2.1"></a>2.1</h5><p>数组是JavaScript中最常见的类型之一了,但是在我们实践过程中同样会遇到各种各样的麻烦.</p>
+<p><strong>稀疏数组</strong>:指的是含有空白或空缺单元的数组<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = [];</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(a.length); <span class="comment">//0</span></span><br><span class="line"></span><br><span class="line">a[<span class="number">4</span>] = a[<span class="number">5</span>];</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(a.length); <span class="comment">//5</span></span><br><span class="line"></span><br><span class="line">a.forEach(<span class="function"><span class="params">elem</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(elem); <span class="comment">//undefined</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(a); <span class="comment">//[,,,,undefined]</span></span><br></pre></td></tr></table></figure></p>
+<p>这里有几个坑需要注意:</p>
+<blockquote>
+<p><strong>1.</strong>一开始建立的空数组<code>a</code>的长度为<code>0</code>,这可以理解,但是在<code>a[4] = a[5]</code>之后出现了问题,<code>a</code>的长度居然变成了<code>5</code>,此时<code>a</code>数组是<code>[,,,,undefined]</code>这种形态.</p>
+</blockquote>
+<blockquote>
+<p><strong>2.</strong>我们通过遍历,只得到了<code>undefined</code>这一个值,这个<code>undefind</code>是由于<code>a[4] = a[5]</code>赋值,由于<code>a[5]</code>没有定义值为<code>undefined</code>被赋给了<code>a[4]</code>,可以等价为<code>a[4] = undefined</code>.</p>
+</blockquote>
+<p><strong>字符串索引</strong><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = [];</span><br><span class="line">a[<span class="number">0</span>] = <span class="string">'Bale'</span>;</span><br><span class="line">a[<span class="string">'age'</span>] = <span class="number">28</span>;</span><br><span class="line"><span class="built_in">console</span>.log(a.length); <span class="comment">//1</span></span><br><span class="line"><span class="built_in">console</span>.log(a[<span class="string">'age'</span>]); <span class="comment">//28</span></span><br><span class="line"><span class="built_in">console</span>.log(a); <span class="comment">//[ 'Bale', age: 28 ]</span></span><br></pre></td></tr></table></figure></p>
+<p>数组不仅可以通过数字索引,也可以通过字符串索引,但值得注意的是,字符串索引的键值对并不算在数组的长度里.</p>
+<h5 id="2-2-二进制浮点数"><a href="#2-2-二进制浮点数" class="headerlink" title="2.2  二进制浮点数"></a>2.2  二进制浮点数</h5><p>JavaScript 中的数字类型是基于“二进制浮点数”实现的,使用的是“双精度”格式,这就带来了一些反常的问题,我们那一道经典面试提来讲解下.<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = <span class="number">0.1</span> + <span class="number">0.2</span>;</span><br><span class="line"><span class="keyword">var</span> b = <span class="number">0.3</span>;</span><br><span class="line"><span class="built_in">console</span>.log(a === b); <span class="comment">//false</span></span><br></pre></td></tr></table></figure></p>
+<p>这是个出人意料的结果,实际上<code>a</code>的值约为<code>0.30000000000000004</code>这并不是一个整数值,这就是二进制浮点数带来的副作用.<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = <span class="number">0.1</span> + <span class="number">0.2</span>;</span><br><span class="line"><span class="keyword">var</span> b = <span class="number">0.3</span>;</span><br><span class="line"><span class="built_in">console</span>.log(a === b); <span class="comment">//false</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">Number</span>.isInteger(a*<span class="number">10</span>)); <span class="comment">//false</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">Number</span>.isInteger(b*<span class="number">10</span>)); <span class="comment">//true</span></span><br><span class="line"><span class="built_in">console</span>.log(a); <span class="comment">//0.30000000000000004</span></span><br></pre></td></tr></table></figure></p>
+<p>我们可以用<code>Number.isInteger()</code>来判断一个数字是否为整数.</p>
+<p><strong>NaN</strong><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = <span class="number">1</span>/<span class="keyword">new</span> <span class="built_in">Object</span>();</span><br><span class="line"><span class="built_in">console</span>.log(<span class="keyword">typeof</span> a); <span class="comment">//Number</span></span><br><span class="line"><span class="built_in">console</span>.log(a); <span class="comment">//NaN</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">isNaN</span>(a)); <span class="comment">//true</span></span><br></pre></td></tr></table></figure></p>
+<p><code>NaN</code>属于特殊的<code>Number</code>类型,我们可以把它理解为<strong>坏数值</strong>,因为它属于数值计算中的错误,更加特殊的是它自己都不等价于自己<code>NaN === NaN //false</code>,我们只能用<code>isNaN()</code>来检测一个数字是否为<code>NaN</code>.</p>
+<hr>
+<h4 id="3-类型转换原理"><a href="#3-类型转换原理" class="headerlink" title="3.类型转换原理"></a>3.类型转换原理</h4><p><strong>类型转换</strong>指的是将一种类型转换为另一种类型,例如:<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> b = <span class="number">2</span>;</span><br><span class="line"><span class="keyword">var</span> a = <span class="built_in">String</span>(b);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="keyword">typeof</span> a); <span class="comment">//string</span></span><br></pre></td></tr></table></figure></p>
+<p>当然,<strong>类型转换</strong>分为显式和隐式,但是不管是隐式转换还是显式转换,都会遵循一定的原理,由于<code>JavaScript</code>是一门动态类型的语言,可以随时赋予任意值,但是各种运算符或条件判断中是需要特定类型的,因此<code>JavaScript</code>引擎会在运算时为变量设定类型.</p>
+<p>这看起来很美好,<code>JavaScript</code>引擎帮我们搞定了类型的问题,但是引擎毕竟不是ASI(超级人工智能),它的很多动作会跟我们预期相去甚远,我们可以从一道面试题开始.</p>
+<pre><code>{}+[] //0
+</code></pre><p>答案是0</p>
+<p>是什么原因造成了上述结果呢?那么我们得从<strong>ECMA-262</strong>中提到的转换规则和抽象操作说起,有兴趣的童鞋可以仔细阅读下这浩如烟海的<a href="http://ecma-international.org/ecma-262/5.1/" target="_blank" rel="noopener">语言规范</a>,如果没这个耐心还是往下看.</p>
+<p>这是JavaScript种类型转换可以从<strong>原始类型</strong>转为<strong>引用类型</strong>,同样可以将<strong>引用类型</strong>转为<strong>原始类型</strong>,转为原始类型的抽象操作为<code>ToPrimitive</code>,而后续更加细分的操作为:<code>ToNumber</code> <code>ToString</code> <code>ToBoolean</code>,这三种抽象操作的转换表如下所示<br><img src="https://camo.githubusercontent.com/c6bc1eea15735abae88cf5f4565c1a64072952f7/687474703a2f2f6f6d7262677071796c2e626b742e636c6f7564646e2e636f6d2f31372d392d31332f31353531373233312e6a7067" alt="转换规则"></p>
+<p>如果想应付面试,我觉得这张表就差不多了,但是为了更深入的探究JavaScript引擎是如何处理代码中类型转换问题的,就需要看 ECMA-262详细的规范,从而探究其内部原理,我们从这段内部原理示意代码开始.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ECMA-262, section 9.1, page 30. Use null/undefined for no hint,</span></span><br><span class="line"><span class="comment">// (1) for number hint, and (2) for string hint.</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">ToPrimitive</span>(<span class="params">x, hint</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// Fast case check.</span></span><br><span class="line">  <span class="keyword">if</span> (IS_STRING(x)) <span class="keyword">return</span> x;</span><br><span class="line">  <span class="comment">// Normal behavior.</span></span><br><span class="line">  <span class="keyword">if</span> (!IS_SPEC_OBJECT(x)) <span class="keyword">return</span> x;</span><br><span class="line">  <span class="keyword">if</span> (IS_SYMBOL_WRAPPER(x)) <span class="keyword">throw</span> MakeTypeError(kSymbolToPrimitive);</span><br><span class="line">  <span class="keyword">if</span> (hint == NO_HINT) hint = (IS_DATE(x)) ? STRING_HINT : NUMBER_HINT;</span><br><span class="line">  <span class="keyword">return</span> (hint == NUMBER_HINT) ? DefaultNumber(x) : DefaultString(x);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ECMA-262, section 8.6.2.6, page 28.</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">DefaultNumber</span>(<span class="params">x</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!IS_SYMBOL_WRAPPER(x)) &#123;</span><br><span class="line">    <span class="keyword">var</span> valueOf = x.valueOf;</span><br><span class="line">    <span class="keyword">if</span> (IS_SPEC_FUNCTION(valueOf)) &#123;</span><br><span class="line">      <span class="keyword">var</span> v = %_CallFunction(x, valueOf);</span><br><span class="line">      <span class="keyword">if</span> (IsPrimitive(v)) <span class="keyword">return</span> v;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> toString = x.toString;</span><br><span class="line">    <span class="keyword">if</span> (IS_SPEC_FUNCTION(toString)) &#123;</span><br><span class="line">      <span class="keyword">var</span> s = %_CallFunction(x, toString);</span><br><span class="line">      <span class="keyword">if</span> (IsPrimitive(s)) <span class="keyword">return</span> s;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">throw</span> MakeTypeError(kCannotConvertToPrimitive);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ECMA-262, section 8.6.2.6, page 28.</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">DefaultString</span>(<span class="params">x</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!IS_SYMBOL_WRAPPER(x)) &#123;</span><br><span class="line">    <span class="keyword">var</span> toString = x.toString;</span><br><span class="line">    <span class="keyword">if</span> (IS_SPEC_FUNCTION(toString)) &#123;</span><br><span class="line">      <span class="keyword">var</span> s = %_CallFunction(x, toString);</span><br><span class="line">      <span class="keyword">if</span> (IsPrimitive(s)) <span class="keyword">return</span> s;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> valueOf = x.valueOf;</span><br><span class="line">    <span class="keyword">if</span> (IS_SPEC_FUNCTION(valueOf)) &#123;</span><br><span class="line">      <span class="keyword">var</span> v = %_CallFunction(x, valueOf);</span><br><span class="line">      <span class="keyword">if</span> (IsPrimitive(v)) <span class="keyword">return</span> v;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">throw</span> MakeTypeError(kCannotConvertToPrimitive);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面代码的逻辑是这样的：</p>
+<ol>
+<li>如果变量为字符串，直接返回.</li>
+<li>如果<code>!IS_SPEC_OBJECT(x)</code>，直接返回.</li>
+<li>如果<code>IS_SYMBOL_WRAPPER(x)</code>，则抛出异常.</li>
+<li>否则会根据传入的<code>hint</code>来调用<code>DefaultNumber</code>和<code>DefaultString</code>，比如如果为<code>Date</code>对象，会调用<code>DefaultString</code>.</li>
+<li><code>DefaultNumber</code>：首先<code>x.valueOf</code>，如果为<code>primitive</code>，则返回<code>valueOf</code>后的值，否则继续调用<code>x.toString</code>，如果为<code>primitive</code>，则返回<code>toString</code>后的值，否则抛出异常</li>
+<li><code>DefaultString</code>：和<code>DefaultNumber</code>正好相反，先调用<code>toString</code>，如果不是<code>primitive</code>再调用<code>valueOf</code>.</li>
+</ol>
+<p>那讲了实现原理，这个<code>ToPrimitive</code>有什么用呢？实际很多操作会调用<code>ToPrimitive</code>，比如加、相等或比较操。在进行加操作时会将左右操作数转换为<code>primitive</code>，然后进行相加。</p>
+<p>下面来个实例，<code>({}) + 1</code>（将<code>{}</code>放在括号中是为了内核将其认为一个代码块）会输出啥？可能日常写代码并不会这样写，不过网上出过类似的面试题。</p>
+<p>加操作只有左右运算符同时为<code>String</code>或<code>Number</code>时会执行对应的<code>%_StringAdd</code>或<code>%NumberAdd</code>，下面看下<code>({}) + 1</code>内部会经过哪些步骤：</p>
+<p><code>{}</code>和<code>1</code>首先会调用<code>ToPrimitive {}</code>会走到<code>DefaultNumber</code>，首先会调用<code>valueOf</code>，返回的是<code>Object {}</code>，不是<code>primitive</code>类型，从而继续走到<code>toString</code>，返回<code>[object Object]</code>，是<code>String</code>类型 最后加操作，结果为<code>[object Object]1</code> 再比如有人问你<code>[] + 1</code>输出啥时，你可能知道应该怎么去计算了，先对<code>[]</code>调用<code>ToPrimitive</code>，返回空字符串，最后结果为<code>&quot;1&quot;</code>。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>您的支持将鼓励我继续创作！</div>
+  <button style="outline: none;padding: 0 25px;font-size: 16px;color: #fff;background-color: #ea6f5a;border-radius: 20px;" id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赞赏支持</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img style="width: 180px" id="wechat_qr" src="http://www.leqikeji.cn/myImgs/wechat-reward-image.jpg" alt="Experor、宇 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img style="width: 180px" id="alipay_qr" src="http://www.leqikeji.cn/myImgs/alipay-reward-image.jpg" alt="Experor、宇 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/javascript数据类型/" rel="tag"># javascript数据类型</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2017/12/03/Bower/" rel="next" title="好用的Web包管理器-Bower">
+                <i class="fa fa-chevron-left"></i> 好用的Web包管理器-Bower
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2018/04/07/js-clone/" rel="prev" title="请你实现一个深克隆">
+                请你实现一个深克隆 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="SOHUCS"></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="http://leqikeji.cn/myImgs/title.jpg"
+                alt="Experor、宇" />
+            
+              <p class="site-author-name" itemprop="name">Experor、宇</p>
+              <p class="site-description motion-element" itemprop="description">解翔宇的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/blog/archives/">
+              
+                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/blog/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/blog/tags/index.html">
+                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/experor-xxy" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://weibo.com/u/3182373863/home" target="_blank" title="微博">
+                      
+                        <i class="fa fa-fw fa-globe"></i>微博</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:stevenDxxy@163.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-原始类型与引用类型"><span class="nav-number">2.</span> <span class="nav-text">1.原始类型与引用类型</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-1"><span class="nav-number">2.1.</span> <span class="nav-text">1.1</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-2引用类型"><span class="nav-number">2.2.</span> <span class="nav-text">1.2引用类型</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-类型中的坑"><span class="nav-number">3.</span> <span class="nav-text">2. 类型中的坑</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2-1"><span class="nav-number">3.1.</span> <span class="nav-text">2.1</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-2-二进制浮点数"><span class="nav-number">3.2.</span> <span class="nav-text">2.2  二进制浮点数</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-类型转换原理"><span class="nav-number">4.</span> <span class="nav-text">3.类型转换原理</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Experor、宇</span>
+
+  
+  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAATCAYAAACdkl3yAAAEX0lEQVR42m2TWWyUBRSFv3+dfzprpxstgVIKpQitFgqYAhIRNJGwSPRBUHnAuAXjEknUUI34osYYHyCE6IOIIIoGicEm7Js1haJUbCltoYWWtrSdmc60s/y7L6QR9b6dh/vdk5xzZf5nLp/dW5ETVNf4uPIYjjBdVHRXlLXrI8mpp32h4l+mVa5q+feO/E8xHj87OTHQXK+PtT8jiaJPN/2oWhm6mQZ7oNznyz5qJjrre698vSNSXPqRL39Z7D+gxNDxmmTP9wd0x6oQ3BKkhm60c9cRBRNZdDBFBXPxTKTFVV7o3poaal6TiB5/OpS34o8JUG/Pscpo1+GDgpQtV/uyaNt3kdMygFMsodeGUD0CwcYk7qHzjM4rw3h/A0Jl0azEzdZd3Z0n15fNXN4vA9jJy9tse6Dc32/if/0c2lACUZGIBRViK8NIhQUUdbSSMwSFbX0ktuwm9cUWxEmpRYLR9wqwTR6Pnq4ead/7lKZF8Hx8FCk5xp23ZhA6HiXUFsM+F8P2gdplk1yaR2ZJAZFP2jA+2If05WYMs3tLMtq4VzbHLq7zF6ZUo0nA39wLGnguxnCHLOxgmMgPSVw1hRNWEfoyKBdiyK5A7oUuRjp6CdQUhaxU5wbZzCQWGYaGfPEWkmsjZCD/2DDpYo1kfS3eXV0QsdA3FeCv7yPYcBsACVCuDmJV52Cke+fLY/FMGWKQnGgS4W6CLiAnDdTvWvF0xHElgAxiPHNPb8SW2xjrHySbiBbKak7AowTiyJHAPQWz76tEnD4Hs9RBEGxcWcEZaELouIV795iSp2EoEqI8JSjH78QGS/z6dGumH+eu5YziIfbOk6jz5yE5Mkgyrscke7gQ5YWdSIAFZB+IIGWvYaWCN2VPqOw0xp91zjyZ9Ku1eH0hzLAPuTyOMH4MQVBxBQM360Gq8WC+txZbd0nHU4hzfWANEiisOSqrvhkHx2KXtub4vYr99gr0lIjs6GhjBiTSSK6FI1jYqoHkzcPeWI2j+TFtCyPWjZ7MHcsvn3VILqtafbn1VP1+qbF1k1Q7gtgcRfn0V7S4iRtRsOqKEfqTeK8lEEd1rFIf+pt1OGVB3H4X5f4lu8MlD9+QASYVLv3QennfarXIiVifr8XdUYK6/zz28nyclTUIroSz8zx2+zDmG3NxXRXvayegtPSab/mLn038mhKzRtThhJttj6KsO4D9Uh3jj09B7hhD2t6ELcnoVUU4CyNoP/chHriBfnsEn6d4IFCyZGACZF5qmeOJRvNkwEolUb79DSc/BNWTEBeEIJVFONuJp2cUIW2QHU7gBdzu7prMmZ+C3mXrkjLAYN7UvvFly/ZUnDmzSZvsp+f5J8htuo7rWmgzwjCcQfBmGV1YgT47xLR39xF3FKNrwfxvYo2/2xOO5jy78VbbkYbNR0aiVz1DQ1X+dvGUffLqc4FEsqCn4WZ/OGuEc/uH88Znz/6rNT33RL8n8Ii0dtVXD+3Z8yMNRwH4G+Nk9O/mybiiAAAAAElFTkSuQmCC" style="display: inline-block">
+  <a href="https://beian.miit.gov.cn/"  style="color:#f72b07" target="_blank">京ICP备18018172号</a>
+</div>
+
+
+  <div class="powered-by">Powered by xxy</div>
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/blog/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+  
+    <script type="text/javascript">
+    (function(){
+      var appid = 'cytAYqgWY';
+      var conf = 'fc1e2fb4761474d3d93c28cde463f12f';
+      var width = window.innerWidth || document.documentElement.clientWidth;
+      if (width < 960) {
+      window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>'); } else { var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("https://changyan.sohu.com/upload/changyan.js",function(){
+        window.changyan.api.config({appid:appid,conf:conf})});
+      }
+    })();
+    </script>
+    <script type="text/javascript" src="https://assets.changyan.sohu.com/upload/plugins/plugins.count.js"></script>
+  
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
